@@ -3,6 +3,7 @@ package com.docdock.group09.appointment_service.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.time.LocalTime;
 @Table(name = "doctor_schedule")
 public class DoctorScheduleEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @UuidGenerator
     private String id;
     private String doctorId;
     private LocalDateTime startTime;

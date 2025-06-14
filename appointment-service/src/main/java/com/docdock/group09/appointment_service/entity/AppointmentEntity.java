@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ import java.time.LocalTime;
 @Table(name = "appointment")
 public class AppointmentEntity {
     @Id
-    @GeneratedValue
+    @UuidGenerator
     private String id;
     private String patientId;
     private String doctorId;
