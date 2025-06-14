@@ -1,7 +1,11 @@
 package com.docdock.group09.medication_service.entity;
 
+import com.docdock.group09.medication_service.constant.MedicationCategory;
+import com.docdock.group09.medication_service.constant.MedicationDosageForm;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,15 +21,16 @@ import java.util.List;
 @Table(name = "medication")
 public class MedicationEntity {
     @Id
-    @GeneratedValue
+    @UuidGenerator
     private String id;
     private String name;
     private String description;
-    private String dosageForm;
-    private String category;
+    private MedicationDosageForm dosageForm;
+    @Enumerated(EnumType.STRING)
+    private MedicationCategory category;
     private LocalDate expiryDate;
     private BigDecimal price;
     private int stockQuantity;
-    @OneToMany(mappedBy = "medications")
+    @OneToMany(mappedBy = "medication")
     private List<PrescriptionDetailEntity> prescriptionDetails;
 }
