@@ -25,6 +25,7 @@ public class MedicationEntity {
     private String id;
     private String name;
     private String description;
+    @Enumerated(EnumType.STRING)
     private MedicationDosageForm dosageForm;
     @Enumerated(EnumType.STRING)
     private MedicationCategory category;

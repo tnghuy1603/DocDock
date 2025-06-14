@@ -1,6 +1,7 @@
 package com.docdock.group09.medication_service.service.impl;
 
 import com.docdock.group09.medication_service.constant.PrescriptionStatus;
+import com.docdock.group09.medication_service.dto.mapper.PrescriptionMapper;
 import com.docdock.group09.medication_service.dto.request.CreatePrescriptionRequest;
 import com.docdock.group09.medication_service.dto.request.PrescriptionGetRequest;
 import com.docdock.group09.medication_service.dto.response.PrescriptionResponse;
@@ -10,8 +11,14 @@ import com.docdock.group09.medication_service.entity.PrescriptionEntity;
 import com.docdock.group09.medication_service.repository.MedicationRepository;
 import com.docdock.group09.medication_service.repository.PrescriptionDetailRepository;
 import com.docdock.group09.medication_service.repository.PrescriptionRepository;
+import com.docdock.group09.medication_service.repository.spec.MedicationSpecification;
+import com.docdock.group09.medication_service.repository.spec.PrescriptionSpecification;
 import com.docdock.group09.medication_service.service.PrescriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +37,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionRepository prescriptionRepository;
     private final PrescriptionDetailRepository prescriptionDetailRepository;
     private final MedicationRepository medicationRepository;
+    private final PrescriptionMapper prescriptionMapper;
 
     @Transactional
     @Override
     public PrescriptionResponse prescribeMedication(CreatePrescriptionRequest request) {
         List<String> medicationIds = request.getPrescriptionDetails()
                 .stream()
-                .map(detail -> detail.getMedicationId())
+                .map(CreatePrescriptionRequest.PrescriptionDetailDTO::getMedicationId)
                 .toList();
         List<MedicationEntity> medicationEntities = medicationRepository.findByIdIn(medicationIds);
         if (medicationEntities.size() != medicationIds.size()) {
@@ -54,6 +62,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             if (detailDTO.getQuantity() > medicationEntity.getStockQuantity()) {
                 throw new RuntimeException("Bad request");
             }
+            medicationEntity.setStockQuantity(medicationEntity.getStockQuantity() - detailDTO.getQuantity());
             PrescriptionDetailEntity prescriptionDetailEntity = new PrescriptionDetailEntity();
             prescriptionDetailEntity.setMedication(medicationEntity);
             prescriptionDetailEntity.setDosage(detailDTO.getDosage());
@@ -77,10 +86,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             prescriptionDetailEntity.setPrescription(prescriptionEntity);
         }
         prescriptionDetailRepository.saveAll(prescriptionDetailEntities);
+        medicationRepository.saveAll(medicationEntities);
         //TODO send notification
-
-        return null;
-
+        return prescriptionMapper.toModel(prescriptionEntity);
     }
 
     @Override
@@ -89,7 +97,18 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public List<PrescriptionResponse> getPrescriptions(PrescriptionGetRequest request) {
-        return List.of();
+    public Page<PrescriptionResponse> getPrescriptions(PrescriptionGetRequest request) {
+        Pageable pagable = PageRequest.of(request.getOffset() / request.getLimit(), request.getLimit());
+        Page<PrescriptionEntity> prescriptionEntityPage = prescriptionRepository.findAll(PrescriptionSpecification.filterPrescription(request), pagable);
+        List<PrescriptionResponse> prescriptionResponses = prescriptionMapper.toModelList(prescriptionEntityPage.getContent());
+        return new PageImpl<>(prescriptionResponses, pagable, prescriptionEntityPage.getTotalElements());
     }
+
+    @Override
+    public PrescriptionResponse getPrescriptionById(String id) {
+        PrescriptionEntity prescriptionEntity = prescriptionRepository.findById(id).orElse(null);
+        return prescriptionMapper.toModel(prescriptionEntity);
+    }
+
+
 }

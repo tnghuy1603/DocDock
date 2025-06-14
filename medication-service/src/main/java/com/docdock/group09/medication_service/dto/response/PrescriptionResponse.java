@@ -22,7 +22,6 @@ public class PrescriptionResponse {
     private String patientId;
     private String doctorId;
     private BigDecimal totalPrice;
-    private String notes;
     private PrescriptionStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

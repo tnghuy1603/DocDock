@@ -35,4 +35,9 @@ public class MedicationController {
         return ResponseEntity.ok(medicationService.createMedication(request));
     }
 
+    @GetMapping("stats")
+    public ResponseEntity<?> getMedicationStats() {
+        return ResponseEntity.ok(medicationService.getStats());
+    }
+
 }
