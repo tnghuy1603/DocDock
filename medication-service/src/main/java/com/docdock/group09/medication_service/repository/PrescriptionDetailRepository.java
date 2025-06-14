@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PrescriptionDetailRepository extends JpaRepository<PrescriptionDetailEntity, Long> {
+public interface PrescriptionDetailRepository extends JpaRepository<PrescriptionDetailEntity, String> {
 }

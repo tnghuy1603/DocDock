@@ -21,7 +21,6 @@ public class PrescriptionEntity {
     @Id
     @GeneratedValue
     private String id;
-
     private String patientId;
     private String doctorId;
     private BigDecimal totalPrice;

@@ -1,0 +1,6 @@
+SERVER_PORT=8081;
+DB_USER=huytran;
+DB_PASSWORD=Letmein123;
+DB_HOST=localhost;
+DB_NAME=user_service;
+DB_PORT=5432
