@@ -16,4 +16,6 @@ public interface DoctorScheduleRepository extends JpaRepository<DoctorScheduleEn
     List<DoctorScheduleEntity> findSchedulesForNext7Days(@Param("doctorId") String doctorId,
                                                          @Param("startDate") LocalDateTime startDate,
                                                          @Param("endDate") LocalDateTime endDate);
+
+    List<DoctorScheduleEntity> findByDoctorIdAndStartTimeBetween(String doctorId, LocalDateTime startTimeAfter, LocalDateTime startTimeBefore);
 }

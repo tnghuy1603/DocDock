@@ -34,7 +34,6 @@ public class AppointmentEntity {
     private String cancelReason;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private LocalDate date;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
