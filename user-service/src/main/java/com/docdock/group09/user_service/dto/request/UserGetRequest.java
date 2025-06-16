@@ -4,16 +4,14 @@ import com.docdock.group09.user_service.constant.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class UserGetRequest {
-    private String action;
     private String specialty;
-    private UserRole role;
-    private String name;
-    private String phoneNumber;
-    private String userId;
-    private String email;
+    private List<UserRole> roles;
+    private String searchKeyword;
     private int limit = 8;
     private int offset = 0;
 }

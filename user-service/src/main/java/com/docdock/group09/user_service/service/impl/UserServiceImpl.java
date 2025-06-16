@@ -1,7 +1,7 @@
 package com.docdock.group09.user_service.service.impl;
 
 import com.docdock.group09.user_service.constant.UserRole;
-import com.docdock.group09.user_service.dto.UserResponse;
+import com.docdock.group09.user_service.dto.response.UserResponse;
 import com.docdock.group09.user_service.dto.request.UserGetRequest;
 import com.docdock.group09.user_service.entity.EmployeeEntity;
 import com.docdock.group09.user_service.entity.PatientEntity;
@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getUserDetailsList(UserGetRequest request) {
         Pageable pageable = PageRequest.of(request.getOffset() / request.getLimit(), request.getLimit());
-        List<UserEntity> userEntities = userRepository.findAll(UserSpecification.filterUser(request)); //later fetch user entity from db
+        Slice<UserEntity> userEntities = userRepository.findAll(UserSpecification.filterUser(request), pageable);
         List<String> userIds = userEntities.stream()
                 .map(UserEntity::getId)
                 .toList();
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Set<String> getUserIds(UserGetRequest request) {
-        List<UserEntity> userEntities = new ArrayList<>();
+        List<UserEntity> userEntities = userRepository.findAll(UserSpecification.filterUser(request));
         return userEntities.stream()
                 .map(UserEntity::getId)
                 .collect(Collectors.toSet());

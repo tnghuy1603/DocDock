@@ -1,5 +1,6 @@
-package com.docdock.group09.user_service.dto;
+package com.docdock.group09.user_service.dto.response;
 
+import com.docdock.group09.user_service.constant.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,9 +15,9 @@ public class UserResponse {
     private String password;
     private String phoneNumber;
     private LocalDate dob;
-    private String role;
+    private UserRole role;
     private String bloodType;
-    private int height;
+    private Integer height;
     private String allergies;
     private String pastIllness;
     private String specialty;

@@ -1,4 +1,4 @@
-SERVER_PORT=8081;
+SERVER_PORT=8083;
 DB_USER=huytran;
 DB_PASSWORD=Letmein123;
 DB_HOST=localhost;

@@ -14,34 +14,22 @@ import java.util.List;
 
 public class UserSpecification {
     public static Specification<UserEntity> filterUser(UserGetRequest request) {
-        return (root, cq, cb) -> {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
-            if (request.getRole() != null) {
-                predicates.add(cb.equal(root.get("role"), request.getRole()));
+            if (StringUtils.isNotEmpty(request.getSearchKeyword())) {
+                String keyword = "%" + request.getSearchKeyword() + "%";
+                Predicate namePredicate = cb.like(root.get("name"), keyword);
+                Predicate idPredicate = cb.like(root.get("id").as(String.class), keyword);
+                Predicate phonePredicate = cb.like(root.get("phoneNumber"), keyword);
+                predicates.add(cb.or(namePredicate, idPredicate, phonePredicate));
             }
-
-            if (StringUtils.isNotBlank(request.getName())) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + request.getName().toLowerCase() + "%"));
+            if (!request.getRoles().isEmpty()) {
+                predicates.add(root.get("role").in(request.getRoles()));
             }
-
-            if (StringUtils.isNotBlank(request.getPhoneNumber())) {
-                predicates.add(cb.like(root.get("phoneNumber"), "%" + request.getPhoneNumber() + "%"));
-            }
-
-            if (StringUtils.isNotBlank(request.getUserId())) {
-                predicates.add(cb.equal(root.get("id"), request.getUserId()));
-            }
-
-            if (StringUtils.isNotBlank(request.getEmail())) {
-                predicates.add(cb.like(cb.lower(root.get("email")), "%" + request.getEmail().toLowerCase() + "%"));
-            }
-            if (request.getSpecialty() != null && !request.getSpecialty().isBlank()) {
+            if (StringUtils.isNotEmpty(request.getSpecialty())) {
                 Join<UserEntity, EmployeeEntity> employeeJoin = root.join("employeeEntity", JoinType.LEFT);
                 predicates.add(cb.equal(employeeJoin.get("specialty"), request.getSpecialty()));
             }
-
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
