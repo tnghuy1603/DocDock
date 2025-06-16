@@ -13,7 +13,6 @@ import com.docdock.group09.appointment_service.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -61,6 +60,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         existingEntity.setUpdatedAt(LocalDateTime.now());
         existingEntity = appointmentRepository.save(existingEntity);
         return appointmentMapper.toModel(existingEntity);
+    }
+
+    @Override
+    public AppointmentResponse getAppointmentDetails(String appointmentId) {
+        AppointmentEntity entity = appointmentRepository.findById(appointmentId).orElseThrow(() ->new RuntimeException("Not found any appointment"));
+        return appointmentMapper.toModel(entity);
     }
 
     private void validateTimeFrame(String doctorId, LocalDateTime startAt, LocalDateTime endAt) {

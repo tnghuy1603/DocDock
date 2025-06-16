@@ -8,5 +8,7 @@ public interface AppointmentService {
     AppointmentResponse bookAppointment(BookAppointmentRequest request);
     AppointmentResponse cancelAppointment(CancelAppointmentRequest request, String appointmentId);
     AppointmentResponse confirmAppointment(String appointmentId);
+    AppointmentResponse getAppointmentDetails(String appointmentId);
+
 
 }

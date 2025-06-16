@@ -1,5 +1,6 @@
 package com.docdock.group09.user_service.service.impl;
 
+import com.docdock.group09.user_service.constant.UserRole;
 import com.docdock.group09.user_service.dto.request.PatientSignUpRequest;
 import com.docdock.group09.user_service.dto.request.SignInRequest;
 import com.docdock.group09.user_service.dto.response.SignInResponse;
@@ -22,14 +23,22 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public SignUpResponse signUp(PatientSignUpRequest request) {
         UserEntity existingEntity = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email is already in use"));
+                .orElse(null);
+        if(existingEntity != null) {
+            throw new UsernameNotFoundException("Email already in use");
+        }
         UserEntity newUserEntity = UserEntity.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
+                .role(UserRole.PATIENT)
                 .build();
         userRepository.save(newUserEntity);
-        return new SignUpResponse();
+        SignUpResponse response = new SignUpResponse();
+//        response.setEmail(request.getEmail());
+//        response.setPassword(newUserEntity.getPassword());
+//        return response;
+        return response;
     }
 
     @Override

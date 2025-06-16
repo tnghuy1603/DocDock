@@ -9,7 +9,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  main:
+    allow-bean-definition-overriding: true
 jwt:
-  private-key:  ${JWT_PRIVATE_KEY:keys/docdock-private.pem}
-  public-key: ${JWT_PUBLIC_KEY:keys/docdock-public.pem}
+  private-key:  ${JWT_PRIVATE_KEY:classpath:keys/docdock-private.pem}
+  public-key: ${JWT_PUBLIC_KEY:classpath:keys/docdock-public.pem}
 

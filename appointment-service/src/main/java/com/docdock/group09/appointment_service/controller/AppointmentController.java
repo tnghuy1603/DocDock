@@ -20,6 +20,13 @@ public class AppointmentController {
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<?> cancelAppointment(@PathVariable(name = "id") String id, @RequestBody CancelAppointmentRequest request) {
-        return ResponseEntity.ok()
+        return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<?> filterAppointment() {
+        return ResponseEntity.ok().build();
+    }
+    public ResponseEntity<?> findAppointmentDetails() {
+        return ResponseEntity.ok().build();
     }
 }
