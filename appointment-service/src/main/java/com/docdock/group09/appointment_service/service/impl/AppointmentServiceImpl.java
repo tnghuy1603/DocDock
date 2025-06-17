@@ -2,8 +2,9 @@ package com.docdock.group09.appointment_service.service.impl;
 
 import com.docdock.group09.appointment_service.constant.AppointmentStatus;
 import com.docdock.group09.appointment_service.dto.mapper.AppointmentMapper;
+import com.docdock.group09.appointment_service.dto.request.AppointmentUpdateRequest;
 import com.docdock.group09.appointment_service.dto.request.BookAppointmentRequest;
-import com.docdock.group09.appointment_service.dto.request.CancelAppointmentRequest;
+import com.docdock.group09.appointment_service.dto.request.FilterAppointmentRequest;
 import com.docdock.group09.appointment_service.dto.response.AppointmentResponse;
 import com.docdock.group09.appointment_service.entity.AppointmentEntity;
 import com.docdock.group09.appointment_service.entity.DoctorScheduleEntity;
@@ -29,13 +30,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         validateTimeFrame(request.getDoctorId(), request.getStartTime(), request.getEndTime());
         AppointmentEntity appointmentEntity = appointmentMapper.toEntity(request);
         appointmentEntity.setStatus(AppointmentStatus.PENDING);
+        appointmentEntity.setCreatedAt(LocalDateTime.now());
+        appointmentEntity.setUpdatedAt(LocalDateTime.now());
         appointmentEntity = appointmentRepository.save(appointmentEntity);
         return appointmentMapper.toModel(appointmentEntity);
         //TODO check patient and doctorId
     }
 
     @Override
-    public AppointmentResponse cancelAppointment(CancelAppointmentRequest request, String appointmentId) {
+    public AppointmentResponse cancelAppointment(AppointmentUpdateRequest request, String appointmentId ) {
         AppointmentEntity existingEntity = appointmentRepository.findById(appointmentId).
                 orElseThrow(() ->new RuntimeException("Not found any appointment"));
         //TODO check initiator id
@@ -50,7 +53,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponse confirmAppointment(String appointmentId) {
+    public AppointmentResponse confirmAppointment(AppointmentUpdateRequest request, String appointmentId) {
         AppointmentEntity existingEntity = appointmentRepository.findById(appointmentId).
             orElseThrow(() ->new RuntimeException("Not found any appointment"));
         if (!AppointmentStatus.PENDING.equals(existingEntity.getStatus())) {
@@ -68,6 +71,21 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentMapper.toModel(entity);
     }
 
+    @Override
+    public AppointmentResponse updateAppointment(AppointmentUpdateRequest request, String appointmentId) {
+        return null;
+    }
+
+    @Override
+    public AppointmentResponse completeAppointment(AppointmentUpdateRequest request, String appointmentId) {
+        return null;
+    }
+
+    @Override
+    public List<AppointmentResponse> filterAppointments(FilterAppointmentRequest request) {
+        List<AppointmentEntity> appointmentEntities = appointmentRepository.findAll()
+    }
+
     private void validateTimeFrame(String doctorId, LocalDateTime startAt, LocalDateTime endAt) {
         LocalDateTime atStartOfTheDay = startAt .toLocalDate().atStartOfDay();
         LocalDateTime atEndOfTheDay = endAt .toLocalDate().atTime(LocalTime.MAX);
@@ -80,7 +98,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         boolean isWithinSchedule = doctorSchedules.stream()
-                .anyMatch(schedule -> startAt.isBefore(schedule.getEndTime()) && endAt.isAfter(schedule.getEndTime()));
+                .anyMatch(schedule -> startAt.isAfter(schedule.getStartTime()) && endAt.isBefore(schedule.getEndTime()));
         if (!isWithinSchedule) {
             throw new RuntimeException("Doctor is not available for this appointment");
         }

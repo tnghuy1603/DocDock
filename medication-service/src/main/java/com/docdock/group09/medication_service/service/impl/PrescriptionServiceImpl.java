@@ -4,6 +4,7 @@ import com.docdock.group09.medication_service.constant.PrescriptionStatus;
 import com.docdock.group09.medication_service.dto.mapper.PrescriptionMapper;
 import com.docdock.group09.medication_service.dto.request.CreatePrescriptionRequest;
 import com.docdock.group09.medication_service.dto.request.PrescriptionGetRequest;
+import com.docdock.group09.medication_service.dto.response.PrescriptionDetailResponse;
 import com.docdock.group09.medication_service.dto.response.PrescriptionResponse;
 import com.docdock.group09.medication_service.entity.MedicationEntity;
 import com.docdock.group09.medication_service.entity.PrescriptionDetailEntity;
@@ -66,6 +67,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             PrescriptionDetailEntity prescriptionDetailEntity = new PrescriptionDetailEntity();
             prescriptionDetailEntity.setMedication(medicationEntity);
             prescriptionDetailEntity.setDosage(detailDTO.getDosage());
+            prescriptionDetailEntity.setPrice(medicationEntity.getPrice());
             prescriptionDetailEntity.setNote(detailDTO.getNote());
             prescriptionDetailEntity.setSubTotal(medicationEntity.getPrice().multiply(BigDecimal.valueOf(detailDTO.getQuantity())));
             prescriptionDetailEntity.setQuantity(detailDTO.getQuantity());
@@ -108,6 +110,28 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     public PrescriptionResponse getPrescriptionById(String id) {
         PrescriptionEntity prescriptionEntity = prescriptionRepository.findById(id).orElse(null);
         return prescriptionMapper.toModel(prescriptionEntity);
+    }
+
+    @Override
+    public List<PrescriptionDetailResponse> getPrescriptionDetails(String prescriptionId) {
+        List<PrescriptionDetailEntity> detailEntities = prescriptionDetailRepository.findByPrescription_Id(prescriptionId);
+        List<PrescriptionDetailResponse> result = new ArrayList<>();
+        for (PrescriptionDetailEntity prescriptionDetailEntity : detailEntities) {
+            MedicationEntity medicationEntity = prescriptionDetailEntity.getMedication();
+            PrescriptionDetailResponse prescriptionDetailResponse = PrescriptionDetailResponse
+                    .builder()
+                    .name(medicationEntity.getName())
+                    .price(prescriptionDetailEntity.getPrice())
+                    .quantity(prescriptionDetailEntity.getQuantity())
+                    .description(medicationEntity.getDescription())
+                    .note(prescriptionDetailEntity.getNote())
+                    .dosage(prescriptionDetailEntity.getDosage())
+                    .subTotal(prescriptionDetailEntity.getSubTotal())
+                    .build();
+            result.add(prescriptionDetailResponse);
+        }
+        //TODO pagination
+        return result;
     }
 
 

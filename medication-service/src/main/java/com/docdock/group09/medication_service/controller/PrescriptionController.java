@@ -29,4 +29,11 @@ public class PrescriptionController {
     public ResponseEntity<?> addPrescription(@RequestBody CreatePrescriptionRequest request) {
         return ResponseEntity.ok(prescriptionService.prescribeMedication(request));
     }
+
+    @GetMapping("/details")
+    public ResponseEntity<?> getPrescriptionDetails(@RequestParam(name = "prescriptionId") String prescriptionId) {
+
+    }
+
+
 }

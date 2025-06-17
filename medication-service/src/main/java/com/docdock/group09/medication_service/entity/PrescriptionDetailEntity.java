@@ -23,6 +23,7 @@ public class PrescriptionDetailEntity {
     private int quantity;
     private int dosage;
     private String note;
+    private BigDecimal price;
     private BigDecimal subTotal;
 
     @ManyToOne

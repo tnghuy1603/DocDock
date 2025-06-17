@@ -1,7 +1,9 @@
 package com.docdock.group09.appointment_service.controller;
 
+import com.docdock.group09.appointment_service.constant.AppointmentStatus;
+import com.docdock.group09.appointment_service.dto.request.AppointmentUpdateRequest;
 import com.docdock.group09.appointment_service.dto.request.BookAppointmentRequest;
-import com.docdock.group09.appointment_service.dto.request.CancelAppointmentRequest;
+import com.docdock.group09.appointment_service.dto.request.FilterAppointmentRequest;
 import com.docdock.group09.appointment_service.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +20,29 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.bookAppointment(request));
     }
 
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<?> cancelAppointment(@PathVariable(name = "id") String id, @RequestBody CancelAppointmentRequest request) {
+    @GetMapping
+    public ResponseEntity<?> filterAppointment(FilterAppointmentRequest request) {
+        return ResponseEntity.ok(appointmentService.filterAppointments(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> cancelAppointment(@PathVariable String id, @RequestBody AppointmentUpdateRequest request) {
+        if (AppointmentStatus.CANCELLED.toString().equals(request.getAction())) {
+            return ResponseEntity.ok(appointmentService.cancelAppointment(request, id));
+        } else if (AppointmentStatus.CONFIRMED.toString().equals(request.getAction())) {
+            return ResponseEntity.ok(appointmentService.confirmAppointment(request, id));
+        } else if (AppointmentStatus.COMPLETED.toString().equals(request.getAction())) {
+            return ResponseEntity.ok(appointmentService.completeAppointment(request, id));
+        } else if ("UPDATE".equals(request.getAction())) {
+            return ResponseEntity.ok(appointmentService.updateAppointment(request, id));
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> findAppointmentById(@PathVariable String id) {
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<?> filterAppointment() {
-        return ResponseEntity.ok().build();
-    }
-    public ResponseEntity<?> findAppointmentDetails() {
-        return ResponseEntity.ok().build();
-    }
+
 }

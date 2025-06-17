@@ -21,4 +21,5 @@ public interface MedicationRepository extends JpaRepository<MedicationEntity, St
             nativeQuery = true)
     List<Object[]> getMedicineStats(@Param("expireDate") LocalDate expireDate,
                               @Param("threshold") int threshold);
+    List<MedicationEntity> findByIdIsIn(List<String> ids);
 }

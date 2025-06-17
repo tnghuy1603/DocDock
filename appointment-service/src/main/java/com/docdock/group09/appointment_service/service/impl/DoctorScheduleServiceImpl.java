@@ -26,7 +26,6 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
 
             for (String doctorId : doctorIds) {
                 DoctorScheduleEntity schedule = new DoctorScheduleEntity();
-                schedule.setId(UUID.randomUUID().toString());
                 schedule.setDoctorId(doctorId);
                 schedule.setStartTime(start);
                 schedule.setEndTime(end);
