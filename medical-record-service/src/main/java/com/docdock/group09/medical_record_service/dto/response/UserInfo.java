@@ -1,4 +1,4 @@
-package com.docdock.group09.appointment_service.dto.response;
+package com.docdock.group09.medical_record_service.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

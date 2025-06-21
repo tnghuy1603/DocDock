@@ -94,7 +94,7 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
 
         cq.orderBy(cb.asc(root.get("createdAt")), cb.asc(root.get("updatedAt")));
         TypedQuery<AppointmentEntity> query = entityManager.createQuery(cq);
-        query.setFirstResult(request.getOffset()).setMaxResults(request.getLimit());
+        query.setFirstResult(request.getOffset() * request.getLimit()).setMaxResults(request.getLimit());
 
         List<AppointmentEntity> pageContent = query.getResultList();
 
