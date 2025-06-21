@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, String>, AppointmentRepositoryCustom {
     List<AppointmentEntity> findByDoctorIdAndStartTimeBetweenAndStatusIsNot(String doctorId, LocalDateTime startTimeAfter, LocalDateTime startTimeBefore, AppointmentStatus status);
+    List<AppointmentEntity> findByStatusIsAndStartTimeAfter(AppointmentStatus status, LocalDateTime startTimeAfter);
+    List<AppointmentEntity> findByStatusIsAndStartTimeBetween(AppointmentStatus status, LocalDateTime startTimeAfter, LocalDateTime startTimeBefore);
 }
