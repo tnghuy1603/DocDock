@@ -86,12 +86,10 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<AppointmentEntity> cq = cb.createQuery(AppointmentEntity.class);
         Root<AppointmentEntity> root = cq.from(AppointmentEntity.class);
-        List<Predicate> andPredicates = buildFilterPredicates(request);
-        
+        List<Predicate> andPredicates = buildFilterPredicates(request, cb, root);
         if (!andPredicates.isEmpty()) {
             cq.where(andPredicates.toArray(new Predicate[0]));
         }
-
 
         cq.orderBy(cb.asc(root.get("createdAt")), cb.asc(root.get("updatedAt")));
         TypedQuery<AppointmentEntity> query = entityManager.createQuery(cq);
@@ -100,25 +98,20 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         List<AppointmentEntity> pageContent = query.getResultList();
 
         //for counting
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        CriteriaBuilder countCb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = countCb.createQuery(Long.class);
         Root<AppointmentEntity> rootCount = countQuery.from(AppointmentEntity.class);
-        countQuery.select(criteriaBuilder.count(rootCount));
-        List<Predicate> countAndPredicates = new ArrayList<>(andPredicate); // reuse same predicates for count
-        if (!countAndPredicates.isEmpty()) {
-            countQuery.where(countAndPredicates.toArray(new Predicate[0]));
-        }
-        if (!countAndPredicates.isEmpty()) {
+        countQuery.select(countCb.count(rootCount));
+        List<Predicate> countPredicates = buildFilterPredicates(request, cb, rootCount);
 
+        if (!countPredicates.isEmpty()) {
+            countQuery.where(countPredicates.toArray(new Predicate[0]));
         }
-
         Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
         return new PageImpl<>(pageContent, PageRequest.of(request.getOffset(), request.getLimit()), totalElements);
     }
 
-    private List<Predicate> buildFilterPredicates(FilterAppointmentRequest request) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        Root<AppointmentEntity> root = cb.createQuery().from(AppointmentEntity.class);
+    private List<Predicate> buildFilterPredicates(FilterAppointmentRequest request, CriteriaBuilder cb, Root<AppointmentEntity> root) {
         List<Predicate> andPredicates = new ArrayList<>();
         List<Predicate> orPredicates = new ArrayList<>();
         if (StringUtils.isNotEmpty(request.getDoctorId())) {
