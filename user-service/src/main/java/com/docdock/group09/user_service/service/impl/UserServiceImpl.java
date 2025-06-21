@@ -31,8 +31,11 @@ public class UserServiceImpl implements UserService {
     private final PatientRepository patientRepository;
     private final EmployeeRepository employeeRepository;
     @Override
-    public UserResponse getUserDetailsById(String id) {
+    public UserResponse getUserDetailsById(String id, UserRole role) {
         UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
+        if (role != null && userEntity.getRole() != role) {
+            throw new RuntimeException("Not found user with that role");
+        }
         UserResponse userResponse = new UserResponse();
         BeanUtils.copyProperties(userEntity, userResponse);
         PatientEntity patientEntity;

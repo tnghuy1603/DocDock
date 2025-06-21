@@ -9,13 +9,14 @@ import com.docdock.group09.appointment_service.dto.request.FilterAppointmentRequ
 import com.docdock.group09.appointment_service.dto.response.AppointmentFilterStatsResponse;
 import com.docdock.group09.appointment_service.dto.response.AppointmentResponse;
 import com.docdock.group09.appointment_service.dto.response.AppointmentStatusCount;
+import com.docdock.group09.appointment_service.dto.response.UserInfo;
 import com.docdock.group09.appointment_service.entity.AppointmentEntity;
 import com.docdock.group09.appointment_service.entity.DoctorScheduleEntity;
 import com.docdock.group09.appointment_service.repository.AppointmentRepository;
 import com.docdock.group09.appointment_service.repository.DoctorScheduleRepository;
 import com.docdock.group09.appointment_service.service.AppointmentService;
+import com.docdock.group09.appointment_service.service.UserServiceClient;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
@@ -32,14 +33,25 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
     private final DoctorScheduleRepository doctorScheduleRepository;
+    private final UserServiceClient userServiceClient;
     @Override
     public AppointmentResponse bookAppointment(BookAppointmentRequest request) {
+        UserInfo patient = userServiceClient.getUserDetails(request.getPatientId(), "PATIENT");
+        if (patient == null) {
+            throw new RuntimeException("PATIENT NOT FOUND");
+        }
+        UserInfo doctor = userServiceClient.getUserDetails(request.getDoctorId(), "DOCTOR");
+        if (doctor == null) {
+            throw new RuntimeException("DOCTOR NOT FOUND");
+        }
         //Assuming patient can not book appointment with span of 2 days
         validateTimeFrame(request.getDoctorId(), request.getStartTime(), request.getEndTime());
         AppointmentEntity appointmentEntity = appointmentMapper.toEntity(request);
         appointmentEntity.setStatus(PENDING);
         appointmentEntity.setCreatedAt(LocalDateTime.now());
         appointmentEntity.setUpdatedAt(LocalDateTime.now());
+        appointmentEntity.setPatientName(patient.getName());
+        appointmentEntity.setDoctorName(doctor.getName());
         appointmentEntity = appointmentRepository.save(appointmentEntity);
         return appointmentMapper.toModel(appointmentEntity);
         //TODO check patient and doctorId

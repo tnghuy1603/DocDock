@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,6 +108,7 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         if (!countPredicates.isEmpty()) {
             countQuery.where(countPredicates.toArray(new Predicate[0]));
         }
+
         Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
         return new PageImpl<>(pageContent, PageRequest.of(request.getOffset(), request.getLimit()), totalElements);
     }
@@ -128,6 +130,12 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
 
         if (request.getType() != null) {
             andPredicates.add(cb.equal(root.get("type"), request.getType()));
+        }
+        if (request.getDate() != null) {
+            LocalDateTime atStartOfDay = request.getDate().atStartOfDay();
+            LocalDateTime atEndOfDay = request.getDate().atStartOfDay();
+            andPredicates.add(cb.between(root.get("startTime"), atStartOfDay, atEndOfDay));
+            andPredicates.add(cb.between(root.get("endTime"), atStartOfDay, atEndOfDay));
         }
 
         if (StringUtils.isNotEmpty(request.getReason())) {
