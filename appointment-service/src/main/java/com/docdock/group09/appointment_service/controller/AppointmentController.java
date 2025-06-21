@@ -49,5 +49,4 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getStats(request));
     }
 
-
 }

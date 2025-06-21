@@ -29,38 +29,55 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cq = cb.createTupleQuery();
         Root<AppointmentEntity> root = cq.from(AppointmentEntity.class);
-        List<Predicate> predicates = new ArrayList<>();
+        List<Predicate> andPredicates = new ArrayList<>();
         if (StringUtils.isNoneEmpty(request.getDoctorId())) {
-            predicates.add(cb.equal(root.get("doctorId"), request.getDoctorId()));
+            andPredicates.add(cb.equal(root.get("doctorId"), request.getDoctorId()));
         }
+
         if (StringUtils.isNotEmpty(request.getPatientId())) {
-            predicates.add(cb.equal(root.get("patientId"), request.getPatientName()));
+            andPredicates.add(cb.equal(root.get("patientId"), request.getPatientId()));
         }
+
         if (request.getDate() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(root.get("date"), request.getDate()));
+            andPredicates.add(cb.greaterThanOrEqualTo(root.get("date"), request.getDate()));
         }
+
         if (ObjectUtils.isNotEmpty(request.getPatientIds())) {
-            predicates.add(cb.in(root.get("patientId").in(request.getPatientIds())));
+            andPredicates.add(cb.in(root.get("patientId").in(request.getPatientIds())));
         }
+
+
+        List<Predicate> orPredicates = new ArrayList<>();
 
         if (ObjectUtils.isNotEmpty(request.getReason())) {
-            predicates.add(cb.like(root.get("reason"), "%" + request.getReason() + "%"));
+            orPredicates.add(cb.like(root.get("reason"), "%" + request.getReason() + "%"));
         }
 
-        if (request.getType() != null) {
-            predicates.add(cb.equal(root.get("type"), request.getType()));
+        if (ObjectUtils.isNotEmpty(request.getPatientName())) {
+            orPredicates.add(cb.like(root.get("patientName"), "%" + request.getPatientName() + "%"));
         }
+
+        if (ObjectUtils.isNotEmpty(request.getDoctorName())) {
+            orPredicates.add(cb.like(root.get("doctorName"), "%" + request.getDoctorName() + "%"));
+        }
+        Predicate predicate = null;
+        if (!orPredicates.isEmpty()) {
+            predicate = cb.or(orPredicates.toArray(new Predicate[0]));
+            andPredicates.add(predicate);
+        }
+
+
         cq.multiselect(
                         root.get("status").alias("status"),
                         cb.count(root).alias("count")
                 )
-                .where(predicates.toArray(new Predicate[0]))
+                .where(andPredicates.toArray(new Predicate[0]))
                 .groupBy(root.get("status"));
         List<Tuple> tuples = entityManager.createQuery(cq).getResultList();
         return tuples.stream()
                 .map(tuple -> new AppointmentStatusCount(
                         tuple.get("status", AppointmentStatus.class).toString(),
-                        tuple.get("count", Integer.class)
+                        tuple.get("count", Long.class)
                 ))
                 .toList();
     }
@@ -69,22 +86,55 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<AppointmentEntity> cq = cb.createQuery(AppointmentEntity.class);
         Root<AppointmentEntity> root = cq.from(AppointmentEntity.class);
-        List<Predicate> andPredicate = new ArrayList<>();
+        List<Predicate> andPredicates = buildFilterPredicates(request);
+        
+        if (!andPredicates.isEmpty()) {
+            cq.where(andPredicates.toArray(new Predicate[0]));
+        }
+
+
+        cq.orderBy(cb.asc(root.get("createdAt")), cb.asc(root.get("updatedAt")));
+        TypedQuery<AppointmentEntity> query = entityManager.createQuery(cq);
+        query.setFirstResult(request.getOffset()).setMaxResults(request.getLimit());
+
+        List<AppointmentEntity> pageContent = query.getResultList();
+
+        //for counting
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Root<AppointmentEntity> rootCount = countQuery.from(AppointmentEntity.class);
+        countQuery.select(criteriaBuilder.count(rootCount));
+        List<Predicate> countAndPredicates = new ArrayList<>(andPredicate); // reuse same predicates for count
+        if (!countAndPredicates.isEmpty()) {
+            countQuery.where(countAndPredicates.toArray(new Predicate[0]));
+        }
+        if (!countAndPredicates.isEmpty()) {
+
+        }
+
+        Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
+        return new PageImpl<>(pageContent, PageRequest.of(request.getOffset(), request.getLimit()), totalElements);
+    }
+
+    private List<Predicate> buildFilterPredicates(FilterAppointmentRequest request) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        Root<AppointmentEntity> root = cb.createQuery().from(AppointmentEntity.class);
+        List<Predicate> andPredicates = new ArrayList<>();
         List<Predicate> orPredicates = new ArrayList<>();
         if (StringUtils.isNotEmpty(request.getDoctorId())) {
-            andPredicate.add(cb.equal(root.get("doctorId"), request.getDoctorId()));
+            andPredicates.add(cb.equal(root.get("doctorId"), request.getDoctorId()));
         }
 
         if (StringUtils.isNotEmpty(request.getPatientId())) {
-            andPredicate.add(cb.equal(root.get("patientId"), request.getPatientId()));
+            andPredicates.add(cb.equal(root.get("patientId"), request.getPatientId()));
         }
 
         if (request.getStatus() != null) {
-            andPredicate.add(cb.equal(root.get("status"), request.getStatus()));
+            andPredicates.add(cb.equal(root.get("status"), request.getStatus()));
         }
 
         if (request.getType() != null) {
-            andPredicate.add(cb.equal(root.get("type"), request.getType()));
+            andPredicates.add(cb.equal(root.get("type"), request.getType()));
         }
 
         if (StringUtils.isNotEmpty(request.getReason())) {
@@ -104,30 +154,10 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         Predicate orPredicate = null;
         if (!orPredicates.isEmpty()) {
             orPredicate = cb.or(orPredicates.toArray(new Predicate[0]));
-            andPredicate.add(orPredicate);
+            andPredicates.add(orPredicate);
         }
-
-        if (!andPredicate.isEmpty()) {
-            cq.where(andPredicate.toArray(new Predicate[0]));
-        }
-
-
-        cq.orderBy(cb.asc(root.get("createdAt")), cb.asc(root.get("updatedDate")));
-        TypedQuery<AppointmentEntity> query = entityManager.createQuery(cq);
-        query.setFirstResult(request.getOffset()).setMaxResults(request.getLimit());
-
-        List<AppointmentEntity> pageContent = query.getResultList();
-
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<AppointmentEntity> rootCount = countQuery.from(AppointmentEntity.class);
-        countQuery.select(cb.count(rootCount));
-        List<Predicate> countAndPredicates = new ArrayList<>(andPredicate); // reuse same predicates for count
-        if (!countAndPredicates.isEmpty()) {
-            countQuery.where(countAndPredicates.toArray(new Predicate[0]));
-        }
-
-        Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
-        return new PageImpl<>(pageContent, PageRequest.of(request.getOffset(), request.getLimit()), totalElements);
+        return andPredicates;
     }
+
 
 }

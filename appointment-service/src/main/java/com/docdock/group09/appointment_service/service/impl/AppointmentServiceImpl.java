@@ -127,18 +127,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<AppointmentStatusCount> appointmentStatusCounts = appointmentRepository.countByFilter(request);
         AppointmentFilterStatsResponse response = new AppointmentFilterStatsResponse();
         for (AppointmentStatusCount appointmentStatusCount : appointmentStatusCounts) {
-            int count = appointmentStatusCount.getCount();
+            long count = appointmentStatusCount.getCount();
             switch (appointmentStatusCount.getStatus()) {
-                case PENDING:
+                case "PENDING":
                     response.setNumberOfPending(count);
                     break;
-                case COMPLETED:
+                case "COMPLETED":
                     response.setNumberOfCompleted(count);
                     break;
-                case CONFIRMED:
+                case "CONFIRMED":
                     response.setNumberOfConfirmed(count);
                     break;
-                case CANCELLED:
+                case "CANCELLED":
                     response.setNumberOfCancelled(count);
                     break;
                 default:

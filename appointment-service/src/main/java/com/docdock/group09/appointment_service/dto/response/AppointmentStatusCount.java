@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AppointmentStatusCount {
-    private AppointmentStatus status;
-    private int count;
+    private String status;
+    private long count;
 }
