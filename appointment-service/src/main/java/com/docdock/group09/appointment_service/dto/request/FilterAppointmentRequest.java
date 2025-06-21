@@ -11,14 +11,18 @@ import java.util.List;
 @Getter
 @Setter
 public class FilterAppointmentRequest {
-    private String doctorId;
     private String patientName;
+    private String doctorName;
     private String patientId;
+    private String doctorId;
     private String reason;
+    private String appointmentId;
     private List<String> patientIds;
     private AppointmentType type;
     private AppointmentStatus status;
+
     private LocalDate date;
     private int offset = 0;
     private int limit = 8;
+
 }

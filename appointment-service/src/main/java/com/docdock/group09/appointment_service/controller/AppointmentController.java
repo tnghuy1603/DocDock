@@ -44,5 +44,10 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<?> getStats(FilterAppointmentRequest request) {
+        return ResponseEntity.ok(appointmentService.getStats(request));
+    }
+
 
 }

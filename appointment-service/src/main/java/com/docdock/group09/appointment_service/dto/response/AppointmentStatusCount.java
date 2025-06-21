@@ -1,5 +1,6 @@
 package com.docdock.group09.appointment_service.dto.response;
 
+import com.docdock.group09.appointment_service.constant.AppointmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AppointmentStatusCount {
-    private String status;
+    private AppointmentStatus status;
     private int count;
 }
