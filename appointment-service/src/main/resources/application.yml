@@ -9,6 +9,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  rabbitmq:
+    host: {MQ_HOST}
+    port: {MQ_PORT}
+    username: {MQ_USER}
+    password: {MQ_PASSWORD}
 user:
   service:
     url: ${USER_SERVICE_HOST}/users

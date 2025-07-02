@@ -5,3 +5,7 @@ DB_HOST=localhost;
 DB_NAME=appointment_service;
 DB_PORT=5432;
 USER_SERVICE_HOST=http://localhost:8081;
+MQ_HOST=localhost
+MQ_PORT=5673
+MQ_USER=guest
+MQ_PASSWORD=guest

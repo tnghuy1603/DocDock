@@ -32,7 +32,7 @@ public class PrescriptionController {
 
     @GetMapping("/details")
     public ResponseEntity<?> getPrescriptionDetails(@RequestParam(name = "prescriptionId") String prescriptionId) {
-
+        return ResponseEntity.ok(prescriptionService.getPrescriptionDetails(prescriptionId));
     }
 
 
