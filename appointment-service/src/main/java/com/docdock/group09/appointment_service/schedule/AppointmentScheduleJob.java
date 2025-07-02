@@ -15,7 +15,7 @@ import java.util.List;
 public class AppointmentScheduleJob {
     private final AppointmentRepository appointmentRepository;
 
-    @Scheduled
+    @Scheduled(initialDelay = 2000)
     public void updateExpiredAppointment() {
         List<AppointmentEntity> expiredAppointments = appointmentRepository.findByStatusIsAndStartTimeAfter(AppointmentStatus.PENDING, LocalDateTime.now());
         for (AppointmentEntity expiredAppointment : expiredAppointments) {
@@ -25,7 +25,7 @@ public class AppointmentScheduleJob {
         }
         appointmentRepository.saveAll(expiredAppointments);
     }
-    @Scheduled
+    @Scheduled(initialDelay = 1000, fixedRate = 1000)
     public void remindUpcomingAppointments() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneHourLater = now.plusHours(1);
