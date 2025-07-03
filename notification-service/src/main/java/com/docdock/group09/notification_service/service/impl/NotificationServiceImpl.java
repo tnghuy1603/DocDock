@@ -7,6 +7,7 @@ import com.docdock.group09.notification_service.entity.NotificationEntity;
 import com.docdock.group09.notification_service.entity.NotificationType;
 import com.docdock.group09.notification_service.repository.NotificationRepository;
 import com.docdock.group09.notification_service.service.NotificationService;
+import com.docdock.group09.notification_service.utils.SmsTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,6 +24,22 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationMapper notificationMapper;
     @Override
     public NotificationResponse sendNotification(SendNotificationRequest request) {
+        String content;
+        switch (request.getType()) {
+            case APPOINTMENT_REMIND:
+                content = SmsTemplate.getAppointmentReminder(request.getDoctorName(), request.getStartAt(), request.getEndAt())
+                break;
+            case APPOINTMENT_CONFIRMED:
+                content = SmsTemplate.getAppointmentConfirmation(request.getDoctorName(), request.getStartAt(), request.getEndAt());
+                break;
+            case APPOINTMENT_REJECTED:
+                content = SmsTemplate.getAppointmentCancelled(request.getDoctorName(), request.getStartAt(), request.getEndAt(), request.getCancelReason());
+                break;
+            case PRESCRIPTION_READY:
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid notification type");
+        }
         return null;
     }
 

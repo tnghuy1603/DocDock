@@ -1,15 +1,16 @@
-package com.docdock.group09.notification_service.dto.request;
+package com.docdock.group09.appointment_service.dto.request;
 
-import com.docdock.group09.notification_service.entity.NotificationType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 @Getter
 @Setter
+@Builder
 public class SendNotificationRequest {
     private String receiverId;
-    private NotificationType type;
+    private String type;
     private String doctorName;
     private LocalDateTime startAt;
     private LocalDateTime endAt;

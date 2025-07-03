@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: api-gateway
+api:
+  user-service-host: ${USER_SERVICE_HOST}
+  medication-service-host: ${MEDICATION_SERVICE_HOST}
+  appointment-service-host: ${APPOINTMENT_SERVICE_HOST}
+  notification-service-host: ${NOTIFICATION_SERVICE_HOST}
+  medical-record-service-host: ${MEDICAL_RECORD_SERVICE_HOST}
