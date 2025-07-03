@@ -33,7 +33,7 @@ public class AppointmentController {
             return ResponseEntity.ok(appointmentService.confirmAppointment(request, id));
         } else if (AppointmentStatus.COMPLETED.toString().equals(request.getAction())) {
             return ResponseEntity.ok(appointmentService.completeAppointment(request, id));
-        } else if ("UPDATE".equals(request.getAction())) {
+            } else if ("UPDATE".equals(request.getAction())) {
             return ResponseEntity.ok(appointmentService.updateAppointment(request, id));
         }
         return ResponseEntity.badRequest().build();

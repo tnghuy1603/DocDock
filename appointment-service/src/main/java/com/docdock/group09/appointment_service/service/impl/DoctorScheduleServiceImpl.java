@@ -18,7 +18,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     @Override
     public void bulkInsertData() {
         List<DoctorScheduleEntity> schedules = new ArrayList<>();
-        List<String> doctorIds = List.of("doc-001", "doc-002", "doc-003");
+        List<String> doctorIds = List.of("cd90c404-6e72-4d57-8d97-05add77c7be1");
 
         for (int day = 0; day < 14; day++) {
             LocalDateTime start = LocalDateTime.now().plusDays(day).withHour(8).withMinute(0);

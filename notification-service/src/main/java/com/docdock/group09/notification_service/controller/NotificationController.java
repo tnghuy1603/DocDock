@@ -26,6 +26,10 @@ public class NotificationController {
         }
         return ResponseEntity.ok(notificationService.getNotifications(userId, type, limit, offset));
     }
+    @GetMapping("/count-unread")
+    public ResponseEntity<?> getUnreadNotifications(@RequestParam("userId") String userId) {
+        return null;
+    }
 
     @PostMapping
     public ResponseEntity<?> createNotification(@RequestBody SendNotificationRequest request) {

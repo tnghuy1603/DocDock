@@ -3,10 +3,7 @@ package com.docdock.group09.web_gateway.module.appointment.controller;
 import com.docdock.group09.web_gateway.module.appointment.AppointmentServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -15,8 +12,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AppointmentController {
     private final AppointmentServiceClient appointmentServiceClient;
+
     @GetMapping
-    public ResponseEntity<?> getAppointments(@RequestParam Map<String, String> params) {
+    public Object getAppointments(@RequestParam Map<String, String> params) {
         return appointmentServiceClient.getAppointments(params);
+    }
+
+    @GetMapping("/stats")
+    public Object getStats(@RequestParam Map<String, String> params) {
+        return appointmentServiceClient.getAppointmentsStats(params);
+    }
+
+    @PostMapping
+    public Object bookAppointment(@RequestBody Object bookingRequest) {
+        return appointmentServiceClient.bookAppointment(bookingRequest);
+    }
+
+    @PutMapping("/{id}")
+    public Object updateAppointment(@PathVariable("id") String id, @RequestBody Object bookingRequest) {
+        return appointmentServiceClient.updateAppointment(id, bookingRequest);
     }
 }

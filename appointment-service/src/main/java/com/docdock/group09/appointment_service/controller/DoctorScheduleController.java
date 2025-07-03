@@ -15,7 +15,7 @@ public class DoctorScheduleController {
 
     @GetMapping
     public ResponseEntity<?> getDoctorScheduleIn7dayFromDate(@RequestParam(name = "doctorId") String doctorId,
-                                                      @RequestParam(name = "date", required = false)   LocalDate date) {
+                                                      @RequestParam(name = "date", required = false) LocalDate date) {
         if (date == null) {
             date = LocalDate.now();
         }
