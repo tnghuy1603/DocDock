@@ -27,7 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
         String content;
         switch (request.getType()) {
             case APPOINTMENT_REMIND:
-                content = SmsTemplate.getAppointmentReminder(request.getDoctorName(), request.getStartAt(), request.getEndAt())
+                content = SmsTemplate.getAppointmentReminder(request.getDoctorName(), request.getStartAt(), request.getEndAt());
                 break;
             case APPOINTMENT_CONFIRMED:
                 content = SmsTemplate.getAppointmentConfirmation(request.getDoctorName(), request.getStartAt(), request.getEndAt());
@@ -50,5 +50,10 @@ public class NotificationServiceImpl implements NotificationService {
         List<NotificationResponse> notificationResponses = notificationMapper.toModelList(notificationEntities.getContent());
         return new PageImpl<>(notificationResponses, pageable, notificationEntities.getTotalElements());
 
+    }
+
+    @Override
+    public long countUnRead(String userId) {
+        return notificationRepository.countUnread(userId);
     }
 }

@@ -1,6 +1,7 @@
 package com.docdock.group09.user_service.controller;
 
 import com.docdock.group09.user_service.constant.UserRole;
+import com.docdock.group09.user_service.dto.request.UpdateUserRequest;
 import com.docdock.group09.user_service.dto.request.UserGetRequest;
 import com.docdock.group09.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class UserController {
     @GetMapping("/ids")
     public ResponseEntity<?> getUserIds(UserGetRequest request){
         return ResponseEntity.ok(userService.getUserIds(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest request, @PathVariable String id){
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
 }

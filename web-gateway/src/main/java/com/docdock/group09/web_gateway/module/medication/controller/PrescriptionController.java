@@ -11,23 +11,25 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PrescriptionController {
     private final MedicationServiceClient medicationServiceClient;
-    @GetMapping("/prescriptions/{id}")
+    @GetMapping("/{id}")
     public Object getPrescription(@PathVariable String id) {
         return medicationServiceClient.getPrescription(id);
     }
 
-    @GetMapping("/prescriptions")
+    @GetMapping
     public Object filterPrescription(@RequestParam Map<String, String> params) {
         return medicationServiceClient.filterPrescription(params);
     }
 
-    @PostMapping("/prescriptions")
+    @PostMapping
     public Object addPrescription(@RequestBody Object request) {
         return medicationServiceClient.addPrescription(request);
     }
 
-    @GetMapping("/prescriptions/details")
+    @GetMapping("details")
     public Object getPrescriptionDetails(@RequestParam Map<String, String> params) {
         return medicationServiceClient.getPrescriptionDetails(params);
     }
+
+
 }

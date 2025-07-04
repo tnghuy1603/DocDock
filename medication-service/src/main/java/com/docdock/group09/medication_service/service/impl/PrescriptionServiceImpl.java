@@ -120,6 +120,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             MedicationEntity medicationEntity = prescriptionDetailEntity.getMedication();
             PrescriptionDetailResponse prescriptionDetailResponse = PrescriptionDetailResponse
                     .builder()
+                    .id(prescriptionDetailEntity.getId())
                     .name(medicationEntity.getName())
                     .price(prescriptionDetailEntity.getPrice())
                     .quantity(prescriptionDetailEntity.getQuantity())

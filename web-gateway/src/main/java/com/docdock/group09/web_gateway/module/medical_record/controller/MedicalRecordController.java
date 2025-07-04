@@ -1,9 +1,24 @@
 package com.docdock.group09.web_gateway.module.medical_record.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.docdock.group09.web_gateway.module.medical_record.MedicalRecordServiceClient;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("medical-records")
+@RequiredArgsConstructor
 public class MedicalRecordController {
+    private final MedicalRecordServiceClient medicalRecordServiceClient;
+
+    @GetMapping
+    public Object getMedicalRecords(@RequestParam Map<String, String> params) {
+        return medicalRecordServiceClient.filterRecords(params);
+    }
+
+    @PostMapping
+    public Object addMedicalRecord(@RequestBody Object medicalRecordCreateRequest) {
+        return medicalRecordServiceClient.createMedicalRecord(medicalRecordCreateRequest);
+    }
 }

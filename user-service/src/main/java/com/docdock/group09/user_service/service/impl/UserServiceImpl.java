@@ -1,6 +1,7 @@
 package com.docdock.group09.user_service.service.impl;
 
 import com.docdock.group09.user_service.constant.UserRole;
+import com.docdock.group09.user_service.dto.request.UpdateUserRequest;
 import com.docdock.group09.user_service.dto.response.UserResponse;
 import com.docdock.group09.user_service.dto.request.UserGetRequest;
 import com.docdock.group09.user_service.entity.EmployeeEntity;
@@ -87,6 +88,33 @@ public class UserServiceImpl implements UserService {
         return userEntities.stream()
                 .map(UserEntity::getId)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public UserResponse updateUser(String id, UpdateUserRequest request) {
+        UserEntity existingUser = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (existingUser != null) {
+            throw new RuntimeException("Email already in use");
+        }
+        existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (existingUser != null) {
+            throw new RuntimeException("Phone number already in use");
+        }
+        existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
+
+        existingUser.setName(request.getName());
+        existingUser.setEmail(request.getEmail());
+        existingUser.setAddress(request.getAddress());
+        existingUser.setPhoneNumber(request.getPhoneNumber());
+        existingUser.setDob(request.getDob());
+        if (UserRole.PATIENT.equals(existingUser.getRole())) {
+            PatientEntity patientEntity = patientRepository.findById(existingUser.getId()).orElseThrow(() -> new RuntimeException("Not found user"));
+            BeanUtils.copyProperties(patientEntity, existingUser);
+        } else if (UserRole.DOCTOR.equals(existingUser.getRole())) {
+            EmployeeEntity employeeEntity = employeeRepository.findById(existingUser.getId()).orElseThrow(() -> new RuntimeException("Not found user"));
+            BeanUtils.copyProperties(request, employeeEntity);
+        }
+        return null;
     }
 
 

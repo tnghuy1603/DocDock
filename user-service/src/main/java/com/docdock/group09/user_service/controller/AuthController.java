@@ -25,4 +25,5 @@ public class AuthController {
     public ResponseEntity<?> signUp(@RequestBody PatientSignUpRequest request) {
         return ResponseEntity.ok(authService.signUp(request));
     }
+
 }
