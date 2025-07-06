@@ -2,6 +2,6 @@ SERVER_PORT=8082;
 DB_USER=huytran;
 DB_PASSWORD=Letmein123;
 DB_HOST=localhost;
-DB_NAME=user_service;
+DB_NAME=medication_service;
 DB_PORT=5432;
 USER_SERVICE_HOST=http://localhost:8081;

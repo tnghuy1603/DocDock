@@ -25,7 +25,7 @@ public class MedicationServiceImpl implements MedicationService {
     private final MedicationMapper medicationMapper;
     @Override
     public MedicationResponse getById(String id) {
-        MedicationEntity entity = medicationRepository.findById(id).orElseThrow();
+        MedicationEntity entity = medicationRepository.findById(id).orElseThrow(() -> MedicationServiceException.buildBadRequest("Not found medication with that id"));
         return medicationMapper.toModel(entity);
     }
 

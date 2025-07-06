@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class MedicationServiceException extends RuntimeException {
     private int code;
-    private String message;
     public MedicationServiceException(int code, String message) {
         super(message);
         this.code = code;
