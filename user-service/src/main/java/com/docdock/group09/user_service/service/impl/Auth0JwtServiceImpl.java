@@ -35,7 +35,11 @@ public class Auth0JwtServiceImpl implements JwtService {
         }
         return JWT.create()
                 .withIssuer("docdock")
-
+                .withSubject(userEntity.getId().toString())
+                .withClaim("email", userEntity.getEmail())
+                .withClaim("role", userEntity.getRole().name())
+                .withIssuedAt(new java.util.Date())
+                .withExpiresAt(new java.util.Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .sign(algorithm);
     }
 
