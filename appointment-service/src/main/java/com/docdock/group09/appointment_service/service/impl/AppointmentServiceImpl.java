@@ -12,6 +12,7 @@ import com.docdock.group09.appointment_service.dto.response.AppointmentStatusCou
 import com.docdock.group09.appointment_service.dto.response.UserInfo;
 import com.docdock.group09.appointment_service.entity.AppointmentEntity;
 import com.docdock.group09.appointment_service.entity.DoctorScheduleEntity;
+import com.docdock.group09.appointment_service.exception.AppointmentServiceException;
 import com.docdock.group09.appointment_service.repository.AppointmentRepository;
 import com.docdock.group09.appointment_service.repository.DoctorScheduleRepository;
 import com.docdock.group09.appointment_service.service.AppointmentService;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -38,11 +40,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponse bookAppointment(BookAppointmentRequest request) {
         UserInfo patient = userServiceClient.getUserDetails(request.getPatientId(), "PATIENT");
         if (patient == null) {
-            throw new RuntimeException("PATIENT NOT FOUND");
+            throw AppointmentServiceException.buildBadRequest(MessageFormat.format("PATIENT {0} not found", request.getPatientId()));
         }
         UserInfo doctor = userServiceClient.getUserDetails(request.getDoctorId(), "DOCTOR");
         if (doctor == null) {
-            throw new RuntimeException("DOCTOR NOT FOUND");
+            throw AppointmentServiceException.buildBadRequest(MessageFormat.format("DOCTOR {0} not found", request.getPatientId()));
         }
         //Assuming patient can not book appointment with span of 2 days
         validateTimeFrame(request.getDoctorId(), request.getStartTime(), request.getEndTime());
@@ -60,13 +62,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponse cancelAppointment(AppointmentUpdateRequest request, String appointmentId ) {
         AppointmentEntity existingEntity = appointmentRepository.findById(appointmentId).
-                orElseThrow(() ->new RuntimeException("Not found any appointment"));
+                orElseThrow(() ->AppointmentServiceException.buildBadRequest("Not found any appointment"));
         //TODO check initiator id
         //After confirmation
         if (AppointmentStatus.COMPLETED.equals(existingEntity.getStatus())
                 || AppointmentStatus.CANCELLED.equals(existingEntity.getStatus())
                 || AppointmentStatus.CONFIRMED.equals(existingEntity.getStatus())) {
-            throw new RuntimeException("Can not cancel/completed/confirmed appointment");
+            throw AppointmentServiceException.buildBadRequest("Can not cancel/completed/confirmed appointment");
         }
         existingEntity.setStatus(AppointmentStatus.CANCELLED);
         existingEntity.setCancelReason(request.getCancelReason());
@@ -78,9 +80,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponse confirmAppointment(AppointmentUpdateRequest request, String appointmentId) {
         AppointmentEntity existingEntity = appointmentRepository.findById(appointmentId).
-            orElseThrow(() ->new RuntimeException("Not found any appointment"));
+            orElseThrow(() -> AppointmentServiceException.buildBadRequest("Not found any appointment"));
         if (!PENDING.equals(existingEntity.getStatus())) {
-            throw new RuntimeException("Appointment is not in PENDING state");
+            throw AppointmentServiceException.buildBadRequest("Appointment is not in PENDING state");
         }
         existingEntity.setStatus(AppointmentStatus.CONFIRMED);
         existingEntity.setUpdatedAt(LocalDateTime.now());
@@ -90,16 +92,16 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponse getAppointmentDetails(String appointmentId) {
-        AppointmentEntity entity = appointmentRepository.findById(appointmentId).orElseThrow(() ->new RuntimeException("Not found any appointment"));
+        AppointmentEntity entity = appointmentRepository.findById(appointmentId).orElseThrow(() ->AppointmentServiceException.buildBadRequest("Not found any appointment with id" + appointmentId));
         return appointmentMapper.toModel(entity);
     }
 
     @Override
     public AppointmentResponse updateAppointment(AppointmentUpdateRequest request, String appointmentId) {
         AppointmentEntity existingEntity = appointmentRepository.findById(appointmentId).
-                orElseThrow(() ->new RuntimeException("Not found any appointment"));
+                orElseThrow(() -> AppointmentServiceException.buildBadRequest("Not found any appointment"));
         if (!PENDING.equals(existingEntity.getStatus())) {
-            throw new RuntimeException("Can only update PENDING appointment");
+            throw AppointmentServiceException.buildBadRequest("Can only update PENDING appointment");
         }
         //TODO limit the time to update appoint and how can update appointment
         existingEntity.setReason(request.getReason());
@@ -117,9 +119,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponse completeAppointment(AppointmentUpdateRequest request, String appointmentId) {
         AppointmentEntity appointmentEntity = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new RuntimeException("Not found any appointment"));
+                .orElseThrow(() -> AppointmentServiceException.buildBadRequest("Not found any appointment with id" + appointmentId));
         if (AppointmentStatus.CANCELLED.equals(appointmentEntity.getStatus()) || PENDING.equals(appointmentEntity.getStatus())) {
-            throw new RuntimeException("Bad request can not complete CANCELLED or PENDING appointment");
+            throw AppointmentServiceException.buildBadRequest("Bad request can not complete CANCELLED or PENDING appointment");
         }
         appointmentEntity.setStatus(AppointmentStatus.COMPLETED);
         appointmentEntity.setUpdatedAt(LocalDateTime.now());
@@ -169,14 +171,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         boolean isWithinSchedule = doctorSchedules.stream()
                 .anyMatch(schedule -> startAt.isAfter(schedule.getStartTime()) && endAt.isBefore(schedule.getEndTime()));
         if (!isWithinSchedule) {
-            throw new RuntimeException("Doctor is not available for this appointment");
+            throw AppointmentServiceException.buildBadRequest("Doctor is not available for this appointment");
         }
 
         List<AppointmentEntity> appointmentInADay = appointmentRepository.findByDoctorIdAndStartTimeBetweenAndStatusIsNot(doctorId, atStartOfTheDay, atEndOfTheDay, AppointmentStatus.CANCELLED);
         boolean isOverlap = appointmentInADay.stream()
                 .anyMatch(appointment -> startAt.isBefore(appointment.getEndTime()) && endAt.isAfter(appointment.getStartTime()));
         if (isOverlap) {
-            throw new RuntimeException("Overlapping Appointment");
+            throw AppointmentServiceException.buildBadRequest("Can not overlap with other appointments");
         }
     }
 

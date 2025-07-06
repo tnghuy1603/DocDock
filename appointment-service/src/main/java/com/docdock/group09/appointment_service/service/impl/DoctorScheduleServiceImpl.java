@@ -6,6 +6,7 @@ import com.docdock.group09.appointment_service.dto.response.DoctorScheduleRespon
 import com.docdock.group09.appointment_service.dto.response.UserInfo;
 import com.docdock.group09.appointment_service.entity.AppointmentEntity;
 import com.docdock.group09.appointment_service.entity.DoctorScheduleEntity;
+import com.docdock.group09.appointment_service.exception.AppointmentServiceException;
 import com.docdock.group09.appointment_service.repository.AppointmentRepository;
 import com.docdock.group09.appointment_service.repository.DoctorScheduleRepository;
 import com.docdock.group09.appointment_service.service.DoctorScheduleService;
@@ -72,7 +73,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     public AvailableScheduleResponse getTodayAvailable(String doctorId, LocalDate date) {
         UserInfo doctorInfo = userServiceClient.getUserDetails(doctorId, "DOCTOR");
         if (doctorInfo == null) {
-            throw new RuntimeException("Not found any doctor with that id");
+            throw AppointmentServiceException.buildBadRequest("Not found any doctor with that id");
         }
         LocalDateTime atStartOfTheDay = date.atStartOfDay();
         LocalDateTime atEndOfTheDay = date.atTime(LocalTime.MAX);
