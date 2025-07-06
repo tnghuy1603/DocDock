@@ -110,7 +110,7 @@ public class AppointmentRepositoryCustomImpl implements AppointmentRepositoryCus
         }
 
         Long totalElements = entityManager.createQuery(countQuery).getSingleResult();
-        return new PageImpl<>(pageContent, PageRequest.of(request.getOffset(), request.getLimit()), totalElements);
+        return new PageImpl<>(pageContent, PageRequest.of(request.getOffset() / request.getLimit(), request.getLimit()), totalElements);
     }
 
     private List<Predicate> buildFilterPredicates(FilterAppointmentRequest request, CriteriaBuilder cb, Root<AppointmentEntity> root) {
