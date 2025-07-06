@@ -6,6 +6,6 @@ import com.docdock.group09.user_service.dto.response.SignInResponse;
 import com.docdock.group09.user_service.dto.response.SignUpResponse;
 
 public interface AuthService {
-    SignUpResponse signUp(PatientSignUpRequest request);
+    void signUp(PatientSignUpRequest request);
     SignInResponse signIn(SignInRequest request);
 }

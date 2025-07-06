@@ -27,4 +27,10 @@ public class DoctorScheduleController {
         doctorScheduleService.bulkInsertData();
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableTimes(@RequestParam(name = "doctorId") String doctorId,
+                                               @RequestParam(name = "date") LocalDate date) {
+        return ResponseEntity.ok(doctorScheduleService.getTodayAvailable(doctorId, date));
+    }
 }

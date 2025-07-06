@@ -20,4 +20,5 @@ public class DoctorScheduleEntity {
     private String doctorId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
 }

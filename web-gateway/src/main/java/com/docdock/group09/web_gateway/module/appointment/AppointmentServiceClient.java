@@ -23,4 +23,7 @@ public interface AppointmentServiceClient {
     @GetMapping("/doctor-schedules")
     ResponseEntity<?> getDoctorSchedule(@RequestParam Map<String, String> params);
 
+
+    @GetMapping("/doctor-schedules/available")
+    ResponseEntity<?> getAvailableSchedule(@RequestParam Map<String, String> params);
 }

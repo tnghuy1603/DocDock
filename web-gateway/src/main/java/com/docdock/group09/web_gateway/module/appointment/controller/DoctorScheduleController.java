@@ -18,4 +18,9 @@ public class DoctorScheduleController {
     public Object getAllDoctorSchedules(@RequestParam Map<String, String> params) {
         return appointmentServiceClient.getDoctorSchedule(params);
     }
+
+    @GetMapping("/available")
+    public Object getAvailableDoctorSchedules(@RequestParam Map<String, String> params) {
+        return appointmentServiceClient.getAvailableSchedule(params);
+    }
 }

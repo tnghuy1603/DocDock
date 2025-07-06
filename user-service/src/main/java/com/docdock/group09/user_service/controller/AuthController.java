@@ -2,6 +2,7 @@ package com.docdock.group09.user_service.controller;
 
 import com.docdock.group09.user_service.dto.request.PatientSignUpRequest;
 import com.docdock.group09.user_service.dto.request.SignInRequest;
+import com.docdock.group09.user_service.dto.response.DocDockResponse;
 import com.docdock.group09.user_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,14 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody SignInRequest request) {
-        return ResponseEntity.ok(authService.signIn(request));
+        return DocDockResponse.returnSuccess(authService.signIn(request));
     }
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@RequestBody PatientSignUpRequest request) {
-        return ResponseEntity.ok(authService.signUp(request));
+        authService.signUp(request);
+        return DocDockResponse.returnSuccess("Sign up successful", 201);
     }
+
 
 }

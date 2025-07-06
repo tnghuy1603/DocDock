@@ -161,6 +161,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private void validateTimeFrame(String doctorId, LocalDateTime startAt, LocalDateTime endAt) {
+
         LocalDateTime atStartOfTheDay = startAt .toLocalDate().atStartOfDay();
         LocalDateTime atEndOfTheDay = endAt .toLocalDate().atTime(LocalTime.MAX);
 

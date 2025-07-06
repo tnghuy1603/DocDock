@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.docdock.group09.user_service.entity.UserEntity;
 import com.docdock.group09.user_service.service.JwtService;
 import com.docdock.group09.user_service.utils.RSAKeyUtils;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class Auth0JwtServiceImpl implements JwtService {
     private String privateKeyPath;
     @Value("${jwt.public-key}")
     private String publicKeyPath;
-    public String signToken() {
+    public String signToken(UserEntity userEntity) {
         Algorithm algorithm;
         try {
             algorithm = Algorithm.RSA256((RSAPublicKey) rsaKeyUtils.getPublicKey(publicKeyPath), (RSAPrivateKey) rsaKeyUtils.getPrivateKey(privateKeyPath));
@@ -34,6 +35,7 @@ public class Auth0JwtServiceImpl implements JwtService {
         }
         return JWT.create()
                 .withIssuer("docdock")
+
                 .sign(algorithm);
     }
 

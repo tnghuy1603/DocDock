@@ -4,4 +4,5 @@ import com.docdock.group09.appointment_service.dto.request.SendNotificationReque
 
 public interface NotificationService {
     void sendNotification(SendNotificationRequest request);
+
 }

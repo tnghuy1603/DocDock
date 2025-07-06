@@ -4,13 +4,14 @@ import com.docdock.group09.user_service.constant.UserRole;
 import com.docdock.group09.user_service.dto.request.PatientSignUpRequest;
 import com.docdock.group09.user_service.dto.request.SignInRequest;
 import com.docdock.group09.user_service.dto.response.SignInResponse;
-import com.docdock.group09.user_service.dto.response.SignUpResponse;
+import com.docdock.group09.user_service.entity.PatientEntity;
 import com.docdock.group09.user_service.entity.UserEntity;
+import com.docdock.group09.user_service.exception.UserServiceException;
+import com.docdock.group09.user_service.repository.PatientRepository;
 import com.docdock.group09.user_service.repository.UserRepository;
 import com.docdock.group09.user_service.service.AuthService;
 import com.docdock.group09.user_service.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,38 +21,35 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final PatientRepository patientRepository;
+
     @Override
-    public SignUpResponse signUp(PatientSignUpRequest request) {
-        UserEntity existingEntity = userRepository.findByEmail(request.getEmail())
+    public void signUp(PatientSignUpRequest request) {
+        UserEntity existingPatient = userRepository.findByEmail(request.getEmail())
                 .orElse(null);
-        if(existingEntity != null) {
-            throw new UsernameNotFoundException("Email already in use");
+        if(existingPatient != null) {
+            throw UserServiceException.buildBadRequestException("Email are already in use");
         }
-        UserEntity newUserEntity = UserEntity.builder()
+
+        PatientEntity patientEntity = PatientEntity.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .role(UserRole.PATIENT)
                 .build();
-        userRepository.save(newUserEntity);
-        SignUpResponse response = new SignUpResponse();
-//        response.setEmail(request.getEmail());
-//        response.setPassword(newUserEntity.getPassword());
-//        return response;
-        return response;
+        patientRepository.save(patientEntity);
     }
 
     @Override
     public SignInResponse signIn(SignInRequest request) {
         UserEntity userEntity = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> UserServiceException.buildBadRequestException("Invalid email"));
         if (!passwordEncoder.matches(request.getPassword(), userEntity.getPassword())) {
-            throw new UsernameNotFoundException("Invalid username or password");
+            throw UserServiceException.buildBadRequestException("Invalid email or password");
         }
-        String accessToken = jwtService.signToken();
+        String accessToken = jwtService.signToken(userEntity);
         return SignInResponse.builder()
                 .accessToken(accessToken)
                 .build();
-
     }
 }

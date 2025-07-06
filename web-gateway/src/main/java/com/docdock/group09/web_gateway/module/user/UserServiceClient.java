@@ -17,4 +17,10 @@ public interface UserServiceClient {
 
     @PutMapping("/users/{id}")
     ResponseEntity<?> updateUsers(@PathVariable("id") String id, @RequestBody Object updateUserRequest);
+
+    @PostMapping("/auth/sign-up")
+    ResponseEntity<?> signUp(@RequestBody Object signUpRequest);
+
+    @PostMapping("/auth/sign-in")
+    ResponseEntity<?> signIn(@RequestBody Object signInRequest);
 }

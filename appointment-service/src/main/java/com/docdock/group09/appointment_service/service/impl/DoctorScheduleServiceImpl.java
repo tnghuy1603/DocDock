@@ -1,20 +1,29 @@
 package com.docdock.group09.appointment_service.service.impl;
 
+import com.docdock.group09.appointment_service.constant.AppointmentStatus;
+import com.docdock.group09.appointment_service.dto.response.AvailableScheduleResponse;
 import com.docdock.group09.appointment_service.dto.response.DoctorScheduleResponse;
+import com.docdock.group09.appointment_service.dto.response.UserInfo;
+import com.docdock.group09.appointment_service.entity.AppointmentEntity;
 import com.docdock.group09.appointment_service.entity.DoctorScheduleEntity;
+import com.docdock.group09.appointment_service.repository.AppointmentRepository;
 import com.docdock.group09.appointment_service.repository.DoctorScheduleRepository;
 import com.docdock.group09.appointment_service.service.DoctorScheduleService;
+import com.docdock.group09.appointment_service.service.UserServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class DoctorScheduleServiceImpl implements DoctorScheduleService {
     private final DoctorScheduleRepository doctorScheduleRepository;
+    private final UserServiceClient userServiceClient;
+    private final AppointmentRepository appointmentRepository;
     @Override
     public void bulkInsertData() {
         List<DoctorScheduleEntity> schedules = new ArrayList<>();
@@ -58,5 +67,45 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
         }
         return new ArrayList<>(scheduleMap.values());
     }
+
+    @Override
+    public AvailableScheduleResponse getTodayAvailable(String doctorId, LocalDate date) {
+        UserInfo doctorInfo = userServiceClient.getUserDetails(doctorId, "DOCTOR");
+        if (doctorInfo == null) {
+            throw new RuntimeException("Not found any doctor with that id");
+        }
+        LocalDateTime atStartOfTheDay = date.atStartOfDay();
+        LocalDateTime atEndOfTheDay = date.atTime(LocalTime.MAX);
+        List<DoctorScheduleEntity> todaySchedules = doctorScheduleRepository.findByDoctorIdAndStartTimeBetween(doctorId, atStartOfTheDay, atEndOfTheDay);
+        if (todaySchedules.isEmpty()) {
+            return AvailableScheduleResponse.builder()
+                    .doctorId(doctorId)
+                    .timeFrames(Collections.emptyList())
+                    .build();
+        }
+        List<AppointmentEntity> todayAppointment = appointmentRepository.findByDoctorIdAndStartTimeBetweenAndStatusIsNot(doctorId, atStartOfTheDay, atEndOfTheDay, AppointmentStatus.CANCELLED);
+        List<AvailableScheduleResponse.TimeFrame> availableTimeFrame = new ArrayList<>();
+        for (DoctorScheduleEntity schedule : todaySchedules) {
+            LocalDateTime scheduleStart = schedule.getStartTime();
+            LocalDateTime scheduleEnd = schedule.getEndTime();
+            LocalDateTime pointer = scheduleStart;
+
+            for (AppointmentEntity appointment : todayAppointment) {
+                if (pointer.isBefore(appointment.getStartTime())) {
+                    availableTimeFrame.add(new AvailableScheduleResponse.TimeFrame(pointer, appointment.getStartTime()));
+                }
+                pointer = appointment.getEndTime().isAfter(pointer) ? appointment.getEndTime() : pointer;
+            }
+
+            if (pointer.isBefore(scheduleEnd)) {
+                availableTimeFrame.add(new AvailableScheduleResponse.TimeFrame(pointer, scheduleEnd));
+            }
+        }
+        return AvailableScheduleResponse.builder()
+                .doctorId(doctorId)
+                .timeFrames(availableTimeFrame)
+                .build();
+    }
+
 
 }

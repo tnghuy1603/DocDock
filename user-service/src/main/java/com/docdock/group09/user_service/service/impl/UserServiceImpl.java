@@ -7,6 +7,7 @@ import com.docdock.group09.user_service.dto.request.UserGetRequest;
 import com.docdock.group09.user_service.entity.EmployeeEntity;
 import com.docdock.group09.user_service.entity.PatientEntity;
 import com.docdock.group09.user_service.entity.UserEntity;
+import com.docdock.group09.user_service.exception.UserServiceException;
 import com.docdock.group09.user_service.repository.EmployeeRepository;
 import com.docdock.group09.user_service.repository.PatientRepository;
 import com.docdock.group09.user_service.repository.UserRepository;
@@ -33,19 +34,19 @@ public class UserServiceImpl implements UserService {
     private final EmployeeRepository employeeRepository;
     @Override
     public UserResponse getUserDetailsById(String id, UserRole role) {
-        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> UserServiceException.buildBadRequestException("Not found any user with id = {0}", id));
         if (role != null && userEntity.getRole() != role) {
-            throw new RuntimeException("Not found user with that role");
+            throw UserServiceException.buildBadRequestException("Not found any user with id = {0} and role = {1}", id, role);
         }
         UserResponse userResponse = new UserResponse();
         BeanUtils.copyProperties(userEntity, userResponse);
-        PatientEntity patientEntity;
-        EmployeeEntity employeeEntity;
         if (UserRole.PATIENT.equals(userEntity.getRole())) {
-          patientEntity = patientRepository.findById(userEntity.getId()).orElseThrow(() -> new RuntimeException("Not found user"));
+          PatientEntity patientEntity = patientRepository.findById(userEntity.getId())
+                  .orElseThrow(() -> UserServiceException.buildResourceNotFoundException("Patient specific info can not be found"));
           BeanUtils.copyProperties(patientEntity, userResponse);
         } else {
-          employeeEntity = employeeRepository.findById(userEntity.getId()).orElseThrow(() -> new RuntimeException("Not found user"));
+          EmployeeEntity employeeEntity = employeeRepository.findById(userEntity.getId())
+                  .orElseThrow(() -> UserServiceException.buildResourceNotFoundException("Employee specific info can not be found"));
           BeanUtils.copyProperties(employeeEntity, userResponse);
         }
         return userResponse;
@@ -60,6 +61,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
         List<PatientEntity> patientEntities = patientRepository.findAllById(userIds);
         Map<String, PatientEntity> patientMap = patientEntities.stream().collect(Collectors.toMap(PatientEntity::getId, p -> p));
+
         List<EmployeeEntity> employeeEntities = employeeRepository.findAllById(userIds);
         Map<String, EmployeeEntity> employeeMap = employeeEntities.stream().collect(Collectors.toMap(EmployeeEntity::getId, e -> e));
         return userEntities.stream()
@@ -92,29 +94,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(String id, UpdateUserRequest request) {
-        UserEntity existingUser = userRepository.findByEmail(request.getEmail()).orElse(null);
-        if (existingUser != null) {
-            throw new RuntimeException("Email already in use");
+        UserEntity existingUser = userRepository.findById(id)
+                .orElseThrow(() -> UserServiceException.buildBadRequestException("Not found user with that id"));
+        UserEntity userWithUpdatedEmail = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (userWithUpdatedEmail != null && !userWithUpdatedEmail.getId().equals(id)) {
+            throw UserServiceException.buildBadRequestException("Email address {0} is already in use", request.getEmail());
         }
-        existingUser = userRepository.findByPhoneNumber(request.getPhoneNumber());
-        if (existingUser != null) {
-            throw new RuntimeException("Phone number already in use");
+        UserEntity userWithUpdatedPhone = userRepository.findByPhoneNumber(request.getPhoneNumber());
+        if (userWithUpdatedPhone != null && !userWithUpdatedPhone.getId().equals(id)) {
+            throw UserServiceException.buildBadRequestException("Phone number already exists");
         }
-        existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found user"));
 
-        existingUser.setName(request.getName());
-        existingUser.setEmail(request.getEmail());
-        existingUser.setAddress(request.getAddress());
-        existingUser.setPhoneNumber(request.getPhoneNumber());
-        existingUser.setDob(request.getDob());
-        if (UserRole.PATIENT.equals(existingUser.getRole())) {
-            PatientEntity patientEntity = patientRepository.findById(existingUser.getId()).orElseThrow(() -> new RuntimeException("Not found user"));
-            BeanUtils.copyProperties(patientEntity, existingUser);
-        } else if (UserRole.DOCTOR.equals(existingUser.getRole())) {
-            EmployeeEntity employeeEntity = employeeRepository.findById(existingUser.getId()).orElseThrow(() -> new RuntimeException("Not found user"));
-            BeanUtils.copyProperties(request, employeeEntity);
-        }
-        return null;
+        UserResponse userResponse = new UserResponse();
+
+        BeanUtils.copyProperties(request, existingUser);
+        BeanUtils.copyProperties(existingUser, userResponse);
+        //No need for fetching patient or employee record bc user already contains it
+        userRepository.save(existingUser);
+        return userResponse;
     }
 
 
