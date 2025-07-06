@@ -6,6 +6,7 @@ import com.docdock.group09.medication_service.dto.request.MedicationRequest;
 import com.docdock.group09.medication_service.dto.response.MedicationResponse;
 import com.docdock.group09.medication_service.dto.response.MedicationStatsResponse;
 import com.docdock.group09.medication_service.entity.MedicationEntity;
+import com.docdock.group09.medication_service.exception.MedicationServiceException;
 import com.docdock.group09.medication_service.repository.MedicationRepository;
 import com.docdock.group09.medication_service.repository.spec.MedicationSpecification;
 import com.docdock.group09.medication_service.service.MedicationService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -39,7 +41,8 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public MedicationResponse updateMedication(MedicationRequest request, String medicationId) {
-        MedicationEntity existingEntity = medicationRepository.findById(medicationId).orElseThrow(() -> new RuntimeException("Medication with id " + medicationId + " not found"));
+        MedicationEntity existingEntity = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> MedicationServiceException.buildBadRequest(MessageFormat.format("Medication with id {0} not found", medicationId)));
         existingEntity.setName(request.getName());
         existingEntity.setDescription(request.getDescription());
         existingEntity = medicationRepository.save(existingEntity);

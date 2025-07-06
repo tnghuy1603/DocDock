@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserDetailsById(String id, UserRole role) {
         UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> UserServiceException.buildBadRequestException("Not found any user with id = {0}", id));
         if (role != null && userEntity.getRole() != role) {
-            throw UserServiceException.buildBadRequestException("Not found any user with id = {0} and role = {1}", id, role);
+            throw UserServiceException.buildBadRequestException(MessageFormat.format("Not found any user with id = {0} and role = {1}", id, role));
         }
         UserResponse userResponse = new UserResponse();
         BeanUtils.copyProperties(userEntity, userResponse);

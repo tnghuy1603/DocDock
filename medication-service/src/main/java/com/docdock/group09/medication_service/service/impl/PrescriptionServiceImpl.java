@@ -1,20 +1,24 @@
 package com.docdock.group09.medication_service.service.impl;
 
 import com.docdock.group09.medication_service.constant.PrescriptionStatus;
+import com.docdock.group09.medication_service.constant.UserRole;
 import com.docdock.group09.medication_service.dto.mapper.PrescriptionMapper;
 import com.docdock.group09.medication_service.dto.request.CreatePrescriptionRequest;
 import com.docdock.group09.medication_service.dto.request.PrescriptionGetRequest;
 import com.docdock.group09.medication_service.dto.response.PrescriptionDetailResponse;
 import com.docdock.group09.medication_service.dto.response.PrescriptionResponse;
+import com.docdock.group09.medication_service.dto.response.UserInfo;
 import com.docdock.group09.medication_service.entity.MedicationEntity;
 import com.docdock.group09.medication_service.entity.PrescriptionDetailEntity;
 import com.docdock.group09.medication_service.entity.PrescriptionEntity;
+import com.docdock.group09.medication_service.exception.MedicationServiceException;
 import com.docdock.group09.medication_service.repository.MedicationRepository;
 import com.docdock.group09.medication_service.repository.PrescriptionDetailRepository;
 import com.docdock.group09.medication_service.repository.PrescriptionRepository;
 import com.docdock.group09.medication_service.repository.spec.MedicationSpecification;
 import com.docdock.group09.medication_service.repository.spec.PrescriptionSpecification;
 import com.docdock.group09.medication_service.service.PrescriptionService;
+import com.docdock.group09.medication_service.service.UserServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +44,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final PrescriptionDetailRepository prescriptionDetailRepository;
     private final MedicationRepository medicationRepository;
     private final PrescriptionMapper prescriptionMapper;
+    private final UserServiceClient userServiceClient;
 
     @Transactional
     @Override
@@ -47,11 +53,19 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .stream()
                 .map(CreatePrescriptionRequest.PrescriptionDetailDTO::getMedicationId)
                 .toList();
+        UserInfo patientInfo = userServiceClient.getUserInfo(request.getPatientId(), UserRole.PATIENT.toString()).getData();
+        if (patientInfo == null) {
+            throw MedicationServiceException.buildBadRequest(MessageFormat.format("PATIENT {0} not found", request.getPatientId()));
+        }
+        UserInfo doctorInfo = userServiceClient.getUserInfo(request.getDoctorId(), UserRole.DOCTOR.toString()).getData();
+        if (doctorInfo == null) {
+            throw MedicationServiceException.buildBadRequest(MessageFormat.format("PATIENT {0} not found", request.getPatientId()));
+        }
         List<MedicationEntity> medicationEntities = medicationRepository.findByIdIn(medicationIds);
         if (medicationEntities.size() != medicationIds.size()) {
-            throw new RuntimeException("Bad request");
+            throw MedicationServiceException.buildBadRequest("Can not found one or more medications");
         }
-        //TODO check doctor and patient id
+
         Map<String, MedicationEntity> medicationMap = medicationEntities.stream()
                 .collect(Collectors.toMap(MedicationEntity::getId, Function.identity()));
 
@@ -61,7 +75,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         for (CreatePrescriptionRequest.PrescriptionDetailDTO detailDTO : detail) {
             MedicationEntity medicationEntity = medicationMap.get(detailDTO.getMedicationId());
             if (detailDTO.getQuantity() > medicationEntity.getStockQuantity()) {
-                throw new RuntimeException("Bad request");
+                throw MedicationServiceException.buildBadRequest(MessageFormat.format("Medicine {0} with id = {1} is out of stock", medicationEntity.getName(), medicationEntity.getId()));
             }
             medicationEntity.setStockQuantity(medicationEntity.getStockQuantity() - detailDTO.getQuantity());
             PrescriptionDetailEntity prescriptionDetailEntity = new PrescriptionDetailEntity();
@@ -100,15 +114,16 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public Page<PrescriptionResponse> getPrescriptions(PrescriptionGetRequest request) {
-        Pageable pagable = PageRequest.of(request.getOffset() / request.getLimit(), request.getLimit());
-        Page<PrescriptionEntity> prescriptionEntityPage = prescriptionRepository.findAll(PrescriptionSpecification.filterPrescription(request), pagable);
+        Pageable pageable = PageRequest.of(request.getOffset() / request.getLimit(), request.getLimit());
+        Page<PrescriptionEntity> prescriptionEntityPage = prescriptionRepository.findAll(PrescriptionSpecification.filterPrescription(request), pageable);
         List<PrescriptionResponse> prescriptionResponses = prescriptionMapper.toModelList(prescriptionEntityPage.getContent());
-        return new PageImpl<>(prescriptionResponses, pagable, prescriptionEntityPage.getTotalElements());
+        return new PageImpl<>(prescriptionResponses, pageable, prescriptionEntityPage.getTotalElements());
     }
 
     @Override
     public PrescriptionResponse getPrescriptionById(String id) {
-        PrescriptionEntity prescriptionEntity = prescriptionRepository.findById(id).orElse(null);
+        PrescriptionEntity prescriptionEntity = prescriptionRepository.findById(id)
+                .orElseThrow(() -> MedicationServiceException.buildBadRequest(MessageFormat.format("Prescription with id {0} not found", id)));
         return prescriptionMapper.toModel(prescriptionEntity);
     }
 
