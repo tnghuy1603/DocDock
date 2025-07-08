@@ -32,4 +32,9 @@ public class AppointmentController {
     public Object updateAppointment(@PathVariable("id") String id, @RequestBody Object bookingRequest) {
         return appointmentServiceClient.updateAppointment(id, bookingRequest);
     }
+
+    @GetMapping("/{id}")
+    public Object getAppointmentDetails(@PathVariable("id") String id) {
+        return appointmentServiceClient.getAppointmentById(id);
+    }
 }

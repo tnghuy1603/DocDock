@@ -6,6 +6,7 @@ import com.docdock.group09.appointment_service.dto.request.BookAppointmentReques
 import com.docdock.group09.appointment_service.dto.request.FilterAppointmentRequest;
 import com.docdock.group09.appointment_service.dto.response.DocDockResponse;
 import com.docdock.group09.appointment_service.service.AppointmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
-    public ResponseEntity<?> bookAppointment(@RequestBody BookAppointmentRequest request) {
+    public ResponseEntity<?> bookAppointment(@Valid @RequestBody BookAppointmentRequest request) {
         return DocDockResponse.returnSuccess(appointmentService.bookAppointment(request), 201);
     }
 

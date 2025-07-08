@@ -4,6 +4,7 @@ import com.docdock.group09.user_service.dto.request.PatientSignUpRequest;
 import com.docdock.group09.user_service.dto.request.SignInRequest;
 import com.docdock.group09.user_service.dto.response.DocDockResponse;
 import com.docdock.group09.user_service.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +19,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-in")
-    public ResponseEntity<?> signIn(@RequestBody SignInRequest request) {
+    public ResponseEntity<?> signIn(@Valid @RequestBody SignInRequest request) {
         return DocDockResponse.returnSuccess(authService.signIn(request));
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@RequestBody PatientSignUpRequest request) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody PatientSignUpRequest request) {
         authService.signUp(request);
         return DocDockResponse.returnSuccess("Sign up successful", 201);
     }

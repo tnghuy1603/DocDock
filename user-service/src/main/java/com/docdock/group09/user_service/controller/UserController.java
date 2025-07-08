@@ -5,6 +5,7 @@ import com.docdock.group09.user_service.dto.request.UpdateUserRequest;
 import com.docdock.group09.user_service.dto.request.UserGetRequest;
 import com.docdock.group09.user_service.dto.response.DocDockResponse;
 import com.docdock.group09.user_service.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@RequestBody UpdateUserRequest request, @PathVariable String id){
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UpdateUserRequest request, @PathVariable String id){
         return DocDockResponse.returnSuccess(userService.updateUser(id, request));
     }
 

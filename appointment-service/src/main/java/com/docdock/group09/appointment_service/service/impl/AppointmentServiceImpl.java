@@ -68,7 +68,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (AppointmentStatus.COMPLETED.equals(existingEntity.getStatus())
                 || AppointmentStatus.CANCELLED.equals(existingEntity.getStatus())
                 || AppointmentStatus.CONFIRMED.equals(existingEntity.getStatus())) {
-            throw AppointmentServiceException.buildBadRequest("Can not cancel/completed/confirmed appointment");
+            throw AppointmentServiceException.buildBadRequest("Can not cancel || completed ||confirmed appointment");
         }
         existingEntity.setStatus(AppointmentStatus.CANCELLED);
         existingEntity.setCancelReason(request.getCancelReason());

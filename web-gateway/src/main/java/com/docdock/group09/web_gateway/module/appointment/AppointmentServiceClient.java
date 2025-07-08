@@ -20,6 +20,9 @@ public interface AppointmentServiceClient {
     @PutMapping("/appointments/{id}")
     ResponseEntity<?> updateAppointment(@PathVariable("id") String id, @RequestBody Object bookingRequest);
 
+    @GetMapping("/appointments/{id}")
+    ResponseEntity<?> getAppointmentById(@PathVariable("id") String id);
+
     @GetMapping("/doctor-schedules")
     ResponseEntity<?> getDoctorSchedule(@RequestParam Map<String, String> params);
 

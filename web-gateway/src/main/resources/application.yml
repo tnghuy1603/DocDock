@@ -7,3 +7,6 @@ api:
   appointment-service-host: ${APPOINTMENT_SERVICE_HOST}
   notification-service-host: ${NOTIFICATION_SERVICE_HOST}
   medical-record-service-host: ${MEDICAL_RECORD_SERVICE_HOST}
+jwt:
+  private-key:  ${JWT_PRIVATE_KEY:classpath:keys/docdock-private.pem}
+  public-key: ${JWT_PUBLIC_KEY:classpath:keys/docdock-public.pem}

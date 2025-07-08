@@ -2,6 +2,7 @@ package com.docdock.group09.appointment_service.dto.request;
 
 import com.docdock.group09.appointment_service.constant.AppointmentType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
