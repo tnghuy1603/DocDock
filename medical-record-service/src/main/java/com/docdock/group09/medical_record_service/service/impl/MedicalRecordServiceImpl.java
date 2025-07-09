@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,6 +40,8 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         medicalRecordEntity.setPatientPhoneNumber(patientInfo.getPhoneNumber());
         medicalRecordEntity.setPatientName(patientInfo.getName());
         medicalRecordEntity.setDoctorName(doctorInfo.getName());
+        medicalRecordEntity.setCreatedAt(LocalDateTime.now());
+        medicalRecordEntity.setUpdatedAt(LocalDateTime.now());
         medicalRecordEntity = medicalRecordRepository.save(medicalRecordEntity);
         return medicalRecordMapper.toModel(medicalRecordEntity);
     }
