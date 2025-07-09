@@ -31,5 +31,8 @@ public class PrescriptionController {
         return medicationServiceClient.getPrescriptionDetails(params);
     }
 
-
+    @PutMapping("{id}/status")
+    public Object updatePrescriptionStatus(@PathVariable("id") String id, @RequestBody Object request) {
+        return medicationServiceClient.updatePrescriptionStatus(id, request);
+    }
 }

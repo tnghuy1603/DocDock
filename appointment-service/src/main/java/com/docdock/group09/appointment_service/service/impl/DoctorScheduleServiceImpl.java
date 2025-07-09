@@ -71,7 +71,7 @@ public class DoctorScheduleServiceImpl implements DoctorScheduleService {
 
     @Override
     public AvailableScheduleResponse getTodayAvailable(String doctorId, LocalDate date) {
-        UserInfo doctorInfo = userServiceClient.getUserDetails(doctorId, "DOCTOR");
+        UserInfo doctorInfo = userServiceClient.getUserDetails(doctorId, "DOCTOR").getData();
         if (doctorInfo == null) {
             throw AppointmentServiceException.buildBadRequest("Not found any doctor with that id");
         }

@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class CreatePrescriptionRequest {
     private String patientId;
+    private String medicalRecordId;
     private String doctorId;
     private String note;
     private List<PrescriptionDetailDTO> prescriptionDetails;

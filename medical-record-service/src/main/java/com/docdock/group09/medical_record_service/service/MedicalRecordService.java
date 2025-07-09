@@ -10,5 +10,5 @@ import java.util.List;
 public interface MedicalRecordService {
     MedicalRecordResponse createRecord(CreateMedicalRecordRequest request);
     Page<MedicalRecordResponse> filter(FilterMedicalRecordRequest request);
-
+    MedicalRecordResponse getById(String id);
 }

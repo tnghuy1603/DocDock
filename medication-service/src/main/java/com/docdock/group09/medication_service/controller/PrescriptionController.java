@@ -1,7 +1,9 @@
 package com.docdock.group09.medication_service.controller;
 
 import com.docdock.group09.medication_service.dto.request.CreatePrescriptionRequest;
+import com.docdock.group09.medication_service.dto.request.MedicationRequest;
 import com.docdock.group09.medication_service.dto.request.PrescriptionGetRequest;
+import com.docdock.group09.medication_service.dto.request.UpdatePrescriptionStatus;
 import com.docdock.group09.medication_service.dto.response.DocDockResponse;
 import com.docdock.group09.medication_service.entity.PrescriptionEntity;
 import com.docdock.group09.medication_service.service.MedicationService;
@@ -36,5 +38,9 @@ public class PrescriptionController {
         return DocDockResponse.returnSuccess(prescriptionService.getPrescriptionDetails(prescriptionId));
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updatePrescriptionStatus(@PathVariable("id") String id, @RequestBody UpdatePrescriptionStatus updateStatusRequest) {
+        return DocDockResponse.returnSuccess(prescriptionService.updateStatus(id, updateStatusRequest));
+    }
 
 }

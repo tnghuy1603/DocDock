@@ -40,7 +40,4 @@ public class MedicationController {
     public ResponseEntity<?> getMedicationStats() {
         return DocDockResponse.returnSuccess(medicationService.getStats());
     }
-
-
-
 }

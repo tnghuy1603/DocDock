@@ -21,7 +21,10 @@ public class PrescriptionSpecification {
             if (StringUtils.isNotEmpty(request.getPatientId())) {
                 predicates.add(cb.equal(root.get("patientId"), request.getPatientId()));
             }
-            return predicates.isEmpty() ? cb.conjunction() : cb.or(predicates.toArray(new Predicate[0]));
+            if (StringUtils.isNotEmpty(request.getMedicalRecordId())) {
+                predicates.add(cb.equal(root.get("medicalRecordId"), request.getMedicalRecordId()));
+            }
+            return predicates.isEmpty() ? cb.conjunction() : cb.and(predicates.toArray(new Predicate[0]));
         };
     }
 }

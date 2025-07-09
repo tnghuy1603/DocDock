@@ -23,4 +23,9 @@ public class MedicalRecordController {
     public ResponseEntity<?> filterRecords(FilterMedicalRecordRequest request) {
         return DocDockResponse.returnSuccessPagination(medicalRecordService.filter(request));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getByMedicalRecordId(@PathVariable("id") String id) {
+        return DocDockResponse.returnSuccess(medicalRecordService.getById(id));
+    }
 }

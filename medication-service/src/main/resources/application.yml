@@ -11,3 +11,4 @@ spring:
       ddl-auto: update
 api:
   user-service-host: ${USER_SERVICE_HOST}
+  medical-record-service-host: ${MEDICAL_RECORD_SERVICE_HOST}

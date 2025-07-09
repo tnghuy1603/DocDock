@@ -8,6 +8,7 @@ import lombok.Setter;
 public class PrescriptionGetRequest {
     private String patientId;
     private String doctorId;
+    private String medicalRecordId;
     private int limit = 8;
     private int offset = 0;
 }

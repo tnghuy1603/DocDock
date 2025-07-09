@@ -11,6 +11,7 @@ import com.docdock.group09.medication_service.repository.MedicationRepository;
 import com.docdock.group09.medication_service.repository.spec.MedicationSpecification;
 import com.docdock.group09.medication_service.service.MedicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -43,8 +44,7 @@ public class MedicationServiceImpl implements MedicationService {
     public MedicationResponse updateMedication(MedicationRequest request, String medicationId) {
         MedicationEntity existingEntity = medicationRepository.findById(medicationId)
                 .orElseThrow(() -> MedicationServiceException.buildBadRequest(MessageFormat.format("Medication with id {0} not found", medicationId)));
-        existingEntity.setName(request.getName());
-        existingEntity.setDescription(request.getDescription());
+        BeanUtils.copyProperties(request, existingEntity);
         existingEntity = medicationRepository.save(existingEntity);
         return  medicationMapper.toModel(existingEntity);
     }

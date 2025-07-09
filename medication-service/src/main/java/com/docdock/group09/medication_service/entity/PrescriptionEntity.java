@@ -22,6 +22,7 @@ public class PrescriptionEntity {
     private String id;
     private String patientId;
     private String doctorId;
+    private String medicalRecordId;
     private BigDecimal totalPrice;
     private String note;
 

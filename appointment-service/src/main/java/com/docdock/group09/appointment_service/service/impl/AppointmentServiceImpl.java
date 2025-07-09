@@ -38,11 +38,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserServiceClient userServiceClient;
     @Override
     public AppointmentResponse bookAppointment(BookAppointmentRequest request) {
-        UserInfo patient = userServiceClient.getUserDetails(request.getPatientId(), "PATIENT");
+        UserInfo patient = userServiceClient.getUserDetails(request.getPatientId(), "PATIENT").getData();
         if (patient == null) {
             throw AppointmentServiceException.buildBadRequest(MessageFormat.format("PATIENT {0} not found", request.getPatientId()));
         }
-        UserInfo doctor = userServiceClient.getUserDetails(request.getDoctorId(), "DOCTOR");
+        UserInfo doctor = userServiceClient.getUserDetails(request.getDoctorId(), "DOCTOR").getData();
         if (doctor == null) {
             throw AppointmentServiceException.buildBadRequest(MessageFormat.format("DOCTOR {0} not found", request.getPatientId()));
         }

@@ -34,4 +34,7 @@ public interface MedicationServiceClient {
 
     @GetMapping("/prescriptions/details")
     ResponseEntity<?> getPrescriptionDetails(@RequestParam Map<String, String> params);
+
+    @PutMapping("/prescriptions/{id}/status")
+    ResponseEntity<?> updatePrescriptionStatus(@PathVariable String id, @RequestBody Object request);
 }

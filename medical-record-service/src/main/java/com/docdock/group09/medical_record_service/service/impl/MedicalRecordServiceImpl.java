@@ -6,6 +6,7 @@ import com.docdock.group09.medical_record_service.dto.request.FilterMedicalRecor
 import com.docdock.group09.medical_record_service.dto.response.MedicalRecordResponse;
 import com.docdock.group09.medical_record_service.dto.response.UserInfo;
 import com.docdock.group09.medical_record_service.entity.MedicalRecordEntity;
+import com.docdock.group09.medical_record_service.exception.MedicalRecordServiceException;
 import com.docdock.group09.medical_record_service.repository.MedicalRecordRepository;
 import com.docdock.group09.medical_record_service.repository.spec.MedicalRecordSpecification;
 import com.docdock.group09.medical_record_service.service.MedicalRecordService;
@@ -28,11 +29,11 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     private final UserServiceClient userServiceClient;
     @Override
     public MedicalRecordResponse createRecord(CreateMedicalRecordRequest request) {
-        UserInfo patientInfo = userServiceClient.getUserInfo(request.getPatientId(), "PATIENT");
+        UserInfo patientInfo = userServiceClient.getUserInfo(request.getPatientId(), "PATIENT").getData();
         if (patientInfo == null) {
             throw new RuntimeException("Not found patient");
         }
-        UserInfo doctorInfo = userServiceClient.getUserInfo(request.getDoctorId(), "DOCTOR");
+        UserInfo doctorInfo = userServiceClient.getUserInfo(request.getDoctorId(), "DOCTOR").getData();
         if (doctorInfo == null) {
             throw new RuntimeException("Not found doctor");
         }
@@ -52,5 +53,12 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         Page<MedicalRecordEntity> medicalRecordEntities = medicalRecordRepository.findAll(MedicalRecordSpecification.filter(request), pageable);
         List<MedicalRecordResponse> medicalRecordResponses = medicalRecordMapper.toModelList(medicalRecordEntities.getContent());
         return new PageImpl<>(medicalRecordResponses,pageable,medicalRecordEntities.getTotalElements());
+    }
+
+    @Override
+    public MedicalRecordResponse getById(String id) {
+        MedicalRecordEntity medicalRecordEntity = medicalRecordRepository.findById(id)
+                .orElseThrow(() -> MedicalRecordServiceException.buildBadRequest("Not found medical record" + id));
+        return medicalRecordMapper.toModel(medicalRecordEntity);
     }
 }

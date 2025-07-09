@@ -5,3 +5,4 @@ DB_HOST=localhost;
 DB_NAME=medication_service;
 DB_PORT=5432;
 USER_SERVICE_HOST=http://localhost:8081;
+MEDICAL_RECORD_SERVICE_HOST=http://localhost:8085;

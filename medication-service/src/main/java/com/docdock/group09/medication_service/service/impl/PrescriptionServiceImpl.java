@@ -5,6 +5,8 @@ import com.docdock.group09.medication_service.constant.UserRole;
 import com.docdock.group09.medication_service.dto.mapper.PrescriptionMapper;
 import com.docdock.group09.medication_service.dto.request.CreatePrescriptionRequest;
 import com.docdock.group09.medication_service.dto.request.PrescriptionGetRequest;
+import com.docdock.group09.medication_service.dto.request.UpdatePrescriptionStatus;
+import com.docdock.group09.medication_service.dto.response.MedicalRecordInfo;
 import com.docdock.group09.medication_service.dto.response.PrescriptionDetailResponse;
 import com.docdock.group09.medication_service.dto.response.PrescriptionResponse;
 import com.docdock.group09.medication_service.dto.response.UserInfo;
@@ -17,6 +19,7 @@ import com.docdock.group09.medication_service.repository.PrescriptionDetailRepos
 import com.docdock.group09.medication_service.repository.PrescriptionRepository;
 import com.docdock.group09.medication_service.repository.spec.MedicationSpecification;
 import com.docdock.group09.medication_service.repository.spec.PrescriptionSpecification;
+import com.docdock.group09.medication_service.service.MedicalRecordClient;
 import com.docdock.group09.medication_service.service.PrescriptionService;
 import com.docdock.group09.medication_service.service.UserServiceClient;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +47,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final MedicationRepository medicationRepository;
     private final PrescriptionMapper prescriptionMapper;
     private final UserServiceClient userServiceClient;
+    private final MedicalRecordClient medicalRecordClient;
 
     @Transactional
     @Override
@@ -53,6 +56,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .stream()
                 .map(CreatePrescriptionRequest.PrescriptionDetailDTO::getMedicationId)
                 .toList();
+        MedicalRecordInfo medicalRecordInfo = medicalRecordClient.getMedicalRecordById(request.getMedicalRecordId()).getData();
+        if (medicalRecordInfo == null) {
+            throw MedicationServiceException.buildBadRequest("Can not find medication record id = " + request.getMedicalRecordId());
+        }
+        if (!medicalRecordInfo.getPatientId().equals(request.getPatientId())) {
+            throw MedicationServiceException.buildBadRequest("patientId doesn't match patient info in medical record");
+        }
         UserInfo patientInfo = userServiceClient.getUserInfo(request.getPatientId(), UserRole.PATIENT.toString()).getData();
         if (patientInfo == null) {
             throw MedicationServiceException.buildBadRequest(MessageFormat.format("PATIENT {0} not found", request.getPatientId()));
@@ -93,6 +103,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .status(PrescriptionStatus.NOT_TAKEN)
                 .totalPrice(total)
                 .doctorId(request.getDoctorId())
+                .medicalRecordId(medicalRecordInfo.getId())
                 .patientId(request.getPatientId())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -148,6 +159,17 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         }
         //TODO pagination
         return result;
+    }
+
+    @Override
+    public PrescriptionResponse updateStatus(String id, UpdatePrescriptionStatus request) {
+        PrescriptionEntity prescriptionEntity = prescriptionRepository.findById(id)
+                .orElseThrow(() -> MedicationServiceException.buildBadRequest("Can not find prescription with id " + id));
+        //TODO add logic later
+        prescriptionEntity.setStatus(PrescriptionStatus.valueOf(request.getStatus()));
+        prescriptionEntity.setUpdatedAt(LocalDateTime.now());
+        prescriptionRepository.save(prescriptionEntity);
+        return prescriptionMapper.toModel(prescriptionEntity);
     }
 
 
