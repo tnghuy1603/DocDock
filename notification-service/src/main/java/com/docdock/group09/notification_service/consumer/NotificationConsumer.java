@@ -19,5 +19,6 @@ public class NotificationConsumer {
 //        SendNotificationRequest request = objectMapper.convertValue(message, SendNotificationRequest.class);
 //        log.info("Received notification message: {}", message);
 //        notificationService.sendNotification(request);
+//
 //    }
 }

@@ -12,8 +12,8 @@ spring:
   rabbitmq:
     host: localhost
     port: 5672
-    username: admin
-    password: admin
+    username: ${MQ_USER}
+    password: ${MQ_PASSWORD}
     listener:
       simple:
         retry:

@@ -5,3 +5,5 @@ DB_HOST=localhost;
 DB_NAME=notification_service;
 DB_PORT=5432;
 USER_SERVICE_HOST=http://localhost:8081;
+MQ_USER=admin;
+MQ_PASSWORD=admin;

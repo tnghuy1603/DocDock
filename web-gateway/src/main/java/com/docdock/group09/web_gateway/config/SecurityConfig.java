@@ -33,14 +33,14 @@ public class SecurityConfig {
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> {
-                    exception.authenticationEntryPoint((request, response, authException) -> {
-                        sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(), authException.getMessage());
-                    });
-                    exception.accessDeniedHandler((request, response, accessDeniedException) -> {
-                        sendErrorResponse(response, HttpStatus.FORBIDDEN.value(), accessDeniedException.getMessage());
-                    });
-                })
+//                .exceptionHandling(exception -> {
+//                    exception.authenticationEntryPoint((request, response, authException) -> {
+//                        sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(), authException.getMessage());
+//                    });
+//                    exception.accessDeniedHandler((request, response, accessDeniedException) -> {
+//                        sendErrorResponse(response, HttpStatus.FORBIDDEN.value(), accessDeniedException.getMessage());
+//                    });
+//                })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> {})
