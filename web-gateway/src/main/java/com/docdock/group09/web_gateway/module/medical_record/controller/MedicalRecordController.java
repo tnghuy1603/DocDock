@@ -21,4 +21,9 @@ public class MedicalRecordController {
     public Object addMedicalRecord(@RequestBody Object medicalRecordCreateRequest) {
         return medicalRecordServiceClient.createMedicalRecord(medicalRecordCreateRequest);
     }
+
+    @GetMapping("{id}")
+    public Object getMedicalRecordById(@PathVariable("id") String id) {
+        return medicalRecordServiceClient.getByMedicalRecordId(id);
+    }
 }

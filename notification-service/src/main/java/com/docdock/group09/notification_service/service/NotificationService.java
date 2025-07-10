@@ -11,5 +11,5 @@ import java.util.List;
 public interface NotificationService {
     NotificationResponse sendNotification(SendNotificationRequest request);
     Page<NotificationResponse> getNotifications(String userId, NotificationType type, Integer limit, Integer offset);
-    long countUnRead(String userId);
+    long countUnRead(String userId, String channel);
 }

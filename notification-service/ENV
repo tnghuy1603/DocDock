@@ -1,0 +1,7 @@
+SERVER_PORT=8084;
+DB_USER=huytran;
+DB_PASSWORD=Letmein123;
+DB_HOST=localhost;
+DB_NAME=notification_service;
+DB_PORT=5432;
+USER_SERVICE_HOST=http://localhost:8081;

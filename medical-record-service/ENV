@@ -4,4 +4,4 @@ DB_PASSWORD=Letmein123;
 DB_HOST=localhost;
 DB_NAME=medical_record_service;
 DB_PORT=5432;
-USER_SERVICE_HOST=http://localhost:8085;
+USER_SERVICE_HOST=http://localhost:8081;

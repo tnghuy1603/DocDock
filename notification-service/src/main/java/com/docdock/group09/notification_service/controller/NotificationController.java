@@ -1,6 +1,7 @@
 package com.docdock.group09.notification_service.controller;
 
 import com.docdock.group09.notification_service.dto.request.SendNotificationRequest;
+import com.docdock.group09.notification_service.dto.response.DocDockResponse;
 import com.docdock.group09.notification_service.entity.NotificationType;
 import com.docdock.group09.notification_service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +25,15 @@ public class NotificationController {
         if (offset < 0) {
             offset = 0;
         }
-        return ResponseEntity.ok(notificationService.getNotifications(userId, type, limit, offset));
+        return DocDockResponse.returnSuccessPagination(notificationService.getNotifications(userId, type, limit, offset));
     }
     @GetMapping("/count-unread")
-    public ResponseEntity<?> getUnreadNotifications(@RequestParam("userId") String userId) {
-        return ResponseEntity.ok(notificationService.countUnRead(userId));
+    public ResponseEntity<?> getUnreadNotifications(@RequestParam("userId") String userId, @RequestParam("channel") String channel) {
+        return DocDockResponse.returnSuccess(notificationService.countUnRead(userId, channel));
     }
 
     @PostMapping
     public ResponseEntity<?> createNotification(@RequestBody SendNotificationRequest request) {
-        return ResponseEntity.ok(notificationService.sendNotification(request));
+        return DocDockResponse.returnSuccess(notificationService.sendNotification(request));
     }
 }

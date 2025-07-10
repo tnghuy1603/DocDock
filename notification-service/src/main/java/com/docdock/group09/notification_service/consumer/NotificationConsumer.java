@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 public class NotificationConsumer {
     private final ObjectMapper objectMapper;
     private final NotificationService notificationService;
-    @RabbitListener(queues = "notification.queue")
-    public void handleNotificationMessage(String message) {
-        SendNotificationRequest request = objectMapper.convertValue(message, SendNotificationRequest.class);
-        log.info("Received notification message: {}", message);
-        notificationService.sendNotification(request);
-    }
+//    @RabbitListener(queues = "notification.queue")
+//    public void handleNotificationMessage(String message) {
+//        SendNotificationRequest request = objectMapper.convertValue(message, SendNotificationRequest.class);
+//        log.info("Received notification message: {}", message);
+//        notificationService.sendNotification(request);
+//    }
 }

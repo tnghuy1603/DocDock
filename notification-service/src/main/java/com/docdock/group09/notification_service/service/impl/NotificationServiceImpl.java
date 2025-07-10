@@ -46,14 +46,14 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Page<NotificationResponse> getNotifications(String userId, NotificationType type, Integer limit, Integer offset) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
-        Page<NotificationEntity> notificationEntities = notificationRepository.findByReceiverIdAndType(userId, type, pageable);
+        Page<NotificationEntity> notificationEntities = notificationRepository.findByReceiverId(userId, pageable);
         List<NotificationResponse> notificationResponses = notificationMapper.toModelList(notificationEntities.getContent());
         return new PageImpl<>(notificationResponses, pageable, notificationEntities.getTotalElements());
 
     }
 
     @Override
-    public long countUnRead(String userId) {
-        return notificationRepository.countUnread(userId);
+    public long countUnRead(String userId, String channel) {
+        return notificationRepository.countUnread(userId, channel);
     }
 }
